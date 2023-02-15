@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2009-2016 Stephan Raue (stephan@openelec.tv)
+# Copyright (C) 2016-present Team LibreELEC (https://libreelec.tv)
+
+PKG_NAME="glib"
+PKG_VERSION="2.74.5"
+PKG_SHA256="ceba83a5999ceb31a4c4fc9921207cb9ffffd2ab1d6ec03c162d3f608a5c14c8"
+PKG_LICENSE="LGPL"
+PKG_SITE="http://www.gtk.org/"
+PKG_URL="http://ftp.gnome.org/pub/gnome/sources/glib/${PKG_VERSION%.*}/$PKG_NAME-$PKG_VERSION.tar.xz"
+PKG_DEPENDS_HOST="libffi:host Python3:host meson:host pcre2:host"
+PKG_DEPENDS_TARGET="toolchain pcre2 zlib libffi Python3:host util-linux"
+PKG_LONGDESC="A library which includes support routines for C such as lists, trees, hashes, memory allocation."
+PKG_TOOLCHAIN="meson"
+PKG_BUILD_FLAGS="-gold"
+
+#removed internal_pcre
+                     #-Dinternal_pcre=true \
+#
+
+
+PKG_MESON_OPTS_HOST="-Ddefault_library=static \
+                     -Dinstalled_tests=false \
+                     -Dlibmount=disabled"
+
+#also removed internal_pcre
+                       #-Dinternal_pcre=false \
+#
+
+
+PKG_MESON_OPTS_TARGET="-Ddefault_library=shared \
+                       -Dinstalled_tests=false \
+                       -Dselinux=disabled \
+                       -Dxattr=true \
+                       -Dgtk_doc=false \
+                       -Dman=false \
+		       -Dtests=false \
+                       -Ddtrace=false \
+                       -Dsystemtap=false \
+                       -Dbsymbolic_functions=true \
+                       -Dforce_posix_threads=true"
+
+PKG_MESON_PROPERTIES_TARGET="
+have_c99_vsnprintf=false
+have_c99_snprintf=false
+growing_stack=false
+va_val_copy=false"
+
+
+pre_configure_target() {
+  LDFLAGS+=" -lz -lm"
+
+#as if in mesa for missing libpcre.so.1 
+
+    #export  LIB_DIR="${TOOLCHAIN}/${TARGET_NAME}/sysroot/usr/lib:${TOOLCHAIN}/lib"
+    #export PKG_CONFIG_LIBDIR="${TOOLCHAIN}/${TARGET_NAME}/sysroot/usr/lib/pkgconfig"
+    #export PKG_CONFIG_PATH="${TOOLCHAIN}/lib/pkgconfig:${TOOLCHAIN}/${TARGET_NAME}/sysroot/usr/share/pkgconfig"
+    ##export CFLAGS=" ${CFLAGS} -I${TOOLCHAIN}/include -L${TOOLCHAIN}/lib -L${TOOLCHAIN}/${TARGET_NAME}/sysroot/usr/lib"
+    
+    #export CFLAGS=" ${CFLAGS} -L${TOOLCHAIN}/lib -L${TOOLCHAIN}/${TARGET_NAME}/sysroot/usr/lib"
+    #export CFLAGS="`echo ${CFLAGS} | sed -i 's/-Werror=missing-include-dirs//g'`"
+    #export CPPFLAGS="${CFLAGS}"
+    #export CXXFLAGS="${CFLAGS}"
+    ## in order to make meson found libva in version 2.5 not version 1.5 , we haoyq added @2023/1/3
+    #echo "we check ----: LIB_DIR=${LIB_DIR}; PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}; PKG_CONFIG_PATH=${PKG_CONFIG_PATH} ; CFLAGS=${CFLAGS}"
+  
+  #in order to make vsnprintf=false in effect.  new version seems does not respect the settings.
+  sed -i "s/elif not cc_can_run and host_system in/elif host_system not in/" $(get_build_dir glib)/meson.build
+
+
+
+}
+
+post_makeinstall_target() {
+#  rm -rf $INSTALL/usr/bin
+#  rm -rf $INSTALL/usr/lib/gdbus-2.0
+#  rm -rf $INSTALL/usr/lib/glib-2.0
+  rm -rf $INSTALL/usr/lib/installed-tests
+#  rm -rf $INSTALL/usr/share
+}

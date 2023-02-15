@@ -1,0 +1,15 @@
+desc steps of release FunHomeTV software version. 20200315 v1.1
+
+-1. In distributions/FunHomeTV/version , deside version=devel or version=1.0.1 , change the file.
+0. In defaults.py of service.funhometv.settings directory , double check the url settings of development or PRODUCT , DO NOT CONFUSED. mainly the 2 url of update defaults variable : UPDATE_REQUEST_URL , UPDATE_DOWNLOAD_URL.
+1. in funhome.settings/settings.funhome.tv/service.funhome.settings directory , run "rm -fr build" , run "make addon " and "cd .." then run "sh release.sh" to make it inject into funhome.tv .
+2. in funhome.tv directory , build and test the software in development version to release candinate .
+3. after tested by developer ( both Generic.x86_64 and RPi2.arm arch on machine ), the .img.gz and .tar file is ready to be released as candinate.
+4. record the version number . setup database table for previous version to upgrade. so that update.com.funhome.tv/update scripts known how to tell previous version of funhometv system software , which version upgrade to , where is the torrent file. (in development env, it is on host nele.funhome.tv ; if only the DEVELOP release step is OK ,should we do in PRODUCT . in production env, it is on host u16 with mariadb and update.com.funhome.tv/updates scripts )
+5. on host nele.funhome.tv, in funhome.tv/haoyq/funhome.tv/funhome.tv.release-scripts/releases-scripts/ run createtorrent.sh  ( need first copy the .tar and .img.gz to release-d ) . remember to turn off private flag .
+6. (do NOT do it , if not passed the product condition ---- PROD:put the generated .torrent to u16:/var/www/html  with nginx serve the static file.)
+   DEVELOP: put the generated .torrent to nele.funhome.tv:/var/www/html with nginx serve the static file.
+7. put the .tar and .torrent -- 2 files about 400M to devpc or imac , with uTorrent seeding or Transmission seeding the file.
+8.to test the upgrade in DEVELOP , set the autoupdate or manual update in funhometv settings page. in autoupdate mode , it is updating maybe ;) 
+9.play or test a couple of dayes . if there are problems, solve it , and jump to the first step. if it is OK . then , next , got the PROD release.
+10. should released the version. in download problem, check if tracker.com.update.com:19979 working .

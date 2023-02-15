@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2019-2023 Eric Hao (e.hao@aol.com)
+
+        #ready the certificate env for apache and acme.sh
+        mkdir -p /storage/.kodi/apache/etc/ssl/certs
+        mkdir -p /storage/.kodi/apache/etc/ssl/private
+        #the reloadcmd.sh is needed by funhome.tv.setting , in acme.sh
+	if [ ! -s /storage/.kodi/apache/reloadcmd.sh ]; then
+          cp -P /usr/www/acmesh/reloadcmd.sh /storage/.kodi/apache/reloadcmd.sh
+          chmod 755 /storage/.kodi/apache/reloadcmd.sh
+	fi
+	if [ ! -s /storage/.kodi/apache/etc/ssleay.cnf ]; then
+          cp -P /etc/apache/etc/ssl/ssleay.cnf /storage/.kodi/apache/etc/ssl
+        fi
+
+        # install acme.sh
+        if [ ! -d /storage/acme.sh-3.0.5 ]; then
+          tar xfz /usr/www/acmesh/3.0.5.tar.gz -C /storage
+          cd /storage/acme.sh-3.0.5
+          mkdir /storage/.acme.sh
+          HOME=/storage /storage/acme.sh-3.0.5/acme.sh --install
+          mkdir -p /storage/.acme.sh/dnsapi
+          cp -P /usr/www/acmesh/dns_funhometv.sh /storage/.acme.sh/dnsapi/
+          echo "acme.sh installed"
+        fi
+
+

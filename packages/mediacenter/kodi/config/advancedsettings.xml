@@ -1,0 +1,12 @@
+<advancedsettings>
+  <cputempcommand>/usr/bin/cputemp</cputempcommand>
+  <gputempcommand>/usr/bin/gputemp</gputempcommand>
+
+  <showexitbutton>false</showexitbutton>
+  <remotedelay>1</remotedelay>
+  <samba>
+    <clienttimeout>30</clienttimeout>
+  </samba>
+  <!-- haoyq we added 20200401  copied from 19.0-->
+  <loglevel>3</loglevel>
+</advancedsettings>

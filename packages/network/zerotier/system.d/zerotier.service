@@ -1,0 +1,13 @@
+[Unit]
+Description=ZeroTier One
+After=network-online.target 
+Wants=network-online.target
+
+[Service]
+ExecStartPre=-ln -s /storage/zerotier-one /var/lib/zerotier-one
+ExecStart=/usr/sbin/zerotier-one
+Restart=always
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

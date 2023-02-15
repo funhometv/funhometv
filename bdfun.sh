@@ -1,0 +1,1 @@
+BUILDER_NAME=release BUILDER_VERSION=1 DISTRO=FunHomeTV PROJECT=RPi DEVICE=RPi2 ARCH=arm make image>buildlog.txt 2>&1

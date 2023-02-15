@@ -1,0 +1,19 @@
+<settings version="2">
+  <general>
+    <settinglevel>2</settinglevel>
+  </general>
+    <setting id="locale.charset" default="true">DEFAULT</setting>
+    <setting id="locale.country">Beijing (12h)</setting>
+    <setting id="locale.keyboardlayouts" default="true">English QWERTY</setting>
+    <setting id="locale.language">resource.language.zh_cn</setting>
+    <setting id="locale.longdateformat" default="true">regional</setting>
+    <setting id="locale.shortdateformat" default="true">regional</setting>
+    <setting id="locale.speedunit" default="true">regional</setting>
+    <setting id="locale.subtitlelanguage" default="true">original</setting>
+    <setting id="locale.temperatureunit" default="true">regional</setting>
+    <setting id="locale.timeformat" default="true">regional</setting>
+    <setting id="locale.timezone">Asia/Shanghai</setting>
+    <setting id="locale.timezonecountry">China</setting>
+    <setting id="locale.use24hourclock" default="true">regional</setting>
+    <setting id="lookandfeel.enablerssfeeds" default="true">false</setting>
+</settings>

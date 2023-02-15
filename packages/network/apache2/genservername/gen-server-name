@@ -1,0 +1,7 @@
+#!/bin/sh
+mkdir -p /storage/.kodi/apache
+HOST_NAME=`hostname`
+cat <<SERVER_NAME_EOF >/storage/.kodi/apache/myservername.conf
+ServerName ${HOST_NAME}
+SERVER_NAME_EOF
+

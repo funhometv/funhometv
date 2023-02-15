@@ -1,0 +1,1923 @@
+-----localedef not work, mariadb startup permission problem. apache2 startup problem relate to permission.FINISHED 
+-----libreelec start toooo slow . maybe mariadb startup problem . Now OK. not known why?
+-----need to adjust settings in libreelec ? ...
+20191029 today keep the glibc 's thing -- aka. remove the removes of libreelec , so glibc many be growing , but we need localedef and many locales.
+0 why cannot put files in /storage? /var/www? -- we can put in /var/media/sdb-usb-USB3.0_KINGIDISK/ .should resolved. including Nextcloud.and data directory of mariadb and nextcloud data. WORK.but should adjust layout.
+1 language select add chinese -- added but font should change to arial based not skin default . should resolved. upgrade to freetype 2.10.1 ,adjust default -> arial FINISHED OK.
+	#removed  --added CJK enabled version of fonts replace with name unchanged. 
+	#removed --need thin font 
+	in kodi's package.mk pre_configure_target , change Default fontset --> Arial fontsets . should resolved.
+	in futurn , should make chinese the default language..........
+2 php : dir of httpd.conf , in httpd.conf location of libphp7.so , libiconv.so.2 problem  ---copy /usr/lib/iconv files to /usr/lib .FINISHED
+	added handler in httpd.conf .should ok. FINISHED
+3 nextcloud in /var/www , not /usr/www --now we moved to /storage/.nextcloud , because here is writeable . and moved nextcloud.conf to /usr/ because apache's home is /usr
+	-- and next should add data directory
+?????????
+Oct 30 09:56:24 LibreELEC systemd[1]: Starting The Apache HTTP Server...
+Oct 30 09:56:24 LibreELEC apachectl[684]: (2)No such file or directory: AH02291: Cannot access directory '/var/logs/' for main error log
+Oct 30 09:56:24 LibreELEC apachectl[684]: (2)No such file or directory: AH02291: Cannot access directory '/var/log/apache2/' for error log of vhost defined at /etc/nextcloud.conf:2
+Oct 30 09:56:24 LibreELEC apachectl[684]: AH00014: Configuration check failed
+Oct 30 09:56:24 LibreELEC systemd[1]: apache2.service: Control process exited, code=exited status=1
+-----add mkdir in apachecertcp.sh.should solved.
+	-- and snakeoil certificate generate . When? -- system first time run. and setup nextcloud data directory. 
+	-- error Error  --------now need todo ............. in glibc package.mk , haoyq we leave the locale and localedef and i18n of /usr/share/. should resolved.
+
+    Setting locale to en_US.UTF-8/fr_FR.UTF-8/es_ES.UTF-8/de_DE.UTF-8/ru_RU.UTF-8/pt_BR.UTF-8/it_IT.UTF-8/ja_JP.UTF-8/zh_CN.UTF-8 failed
+
+    Please install one of these locales on your system and restart your webserver.
+	---------from internet ---
+	according to https://help.nextcloud.com/t/locale-issue-prevents-login/55984/5 
+	Schmu
+			Leader
+			Aug 18
+
+			Hi @HomeBoy38
+
+		I believe it must be some issue with the system configuration. I ran NC on Ubuntu 16 and 19, ArchLinux, Raspi and never came accross this issue.
+		Unfortunately, I have no idea what the root cause of this issue might be, but I don’t believe it is related to (different versions) of Nextcloud.
+
+		Okay, read a bit on the Internet and it seems to be an issue with packages and maybe debian buster.
+	---we should look at how to install locale data. should resolved. FINISHED. glibc install all locale data, and nextcloud on disk.
+
+4 apache startup  ,remove load mod_disk_cache.so ###fixme , i don't known why. added user daemon . 
+	SSL startup , internal error? ...  should resolved , haoyq we make apache start after mariadb , on mariadb startup we copy the needed certificate file from /etc/apache/etc/ssl....
+						should resolved.
+[Sun Oct 27 10:15:40.473763 2019] [ssl:warn] [pid 0] AH01873: Init: Session Cache is not configured [hint: SSLSessionCache] .--
+	ceritificate directory ........... FINISHED. in mariadb startup added a shell script.to copy certificate.
+
+5 mariadb startup --addud user mysql --need adjust /usr/sbin/mysqld --> /usr/bin/mysqld in mariadb.service in startup . should resolved.--need check --ok . should adjust --datadir -umysql in mysql_install_db and mysqld startup file. already can run in hand setup.   should resolved. need check.FINISHED.
+6 user settings of nextcloud? . DNS setup of funhome.tv DDNS ? 
+7 add transmission bt
+8 add amule
+9 zerotierone add.
+
+
+
+
+
+-----some-notes-------------------------------------
+
+
+
+
+		
+mysql should first use:
+/usr/scripts/mysql_install_db -umysql --datadir=/var/lib/mysql
+
+and then (should only listen on localhost)
+/usr/bin/mysqld -umysql --datadir=/var/lib/mysql & 
+
+
+
+
+
+
+------------------apache ssl certificate setup----
+
+LibreELEC:~/.kodi/apache/etc/ssl # scp -r haoeric@192.168.1.102:/Volumes/SHUMAFU/b* .
+Password:
+b.funhome.tv.csr                                                                                                                                                  100%  968    22.4KB/s   00:00
+b.funhome.tv.cer                                                                                                                                                  100% 1903   162.7KB/s   00:00
+b.funhome.tv.key                                                                                                                                                  100% 1679   345.1KB/s   00:00
+b.funhome.tv.conf                                                                                                                                                 100%  592   185.1KB/s   00:00
+fullchain.cer                                                                                                                                                     100% 3551   701.3KB/s   00:00
+b.funhome.tv.csr.conf                                                                                                                                             100%  207    27.0KB/s   00:00
+ca.cer                                                                                                                                                            100% 1648   301.1KB/s   00:00
+LibreELEC:~/.kodi/apache/etc/ssl # ls -l
+total 3
+drwxr-xr-x    2 root     root          1024 Oct 27 10:10 b.funhome.tv
+drwxr-xr-x    2 root     root          1024 Oct 27 10:09 certs
+drwxr-xr-x    2 root     root          1024 Oct 27 10:09 private
+LibreELEC:~/.kodi/apache/etc/ssl # cp b.*/fullchain.cer certs/ssl-cert-snakeoil.pem
+LibreELEC:~/.kodi/apache/etc/ssl # cp b.*/b.funhome.tv.key private/ssl-cert.snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl # ls -l private
+total 2
+-rw-r--r--    1 root     root          1679 Oct 27 10:12 ssl-cert.snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl # chmod 600 private/*
+LibreELEC:~/.kodi/apache/etc/ssl # ls -l private
+total 2
+-rw-------    1 root     root          1679 Oct 27 10:12 ssl-cert.snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl # chmod 644 private/*
+LibreELEC:~/.kodi/apache/etc/ssl # ls -l private
+total 2
+-rw-r--r--    1 root     root          1679 Oct 27 10:12 ssl-cert.snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl # /usr/bin/apachectl start
+-sh: /usr/bin/apachectl: not found
+LibreELEC:~/.kodi/apache/etc/ssl # /usr/bin/apache2ctl start
+-sh: /usr/bin/apache2ctl: not found
+LibreELEC:~/.kodi/apache/etc/ssl # /usr/sbin/apachectl start
+AH00526: Syntax error on line 8 of /etc/nextcloud.conf:
+SSLCertificateKeyFile: file '/storage/.kodi/apache/etc/ssl/private/ssl-cert-snakeoil.key' does not exist or is empty
+LibreELEC:~/.kodi/apache/etc/ssl # pwd
+/storage/.kodi/apache/etc/ssl
+LibreELEC:~/.kodi/apache/etc/ssl # ls -l /storage/.kodi/apache/etc/ssl/private/ssl-cert-snakeoil.key
+ls: /storage/.kodi/apache/etc/ssl/private/ssl-cert-snakeoil.key: No such file or directory
+LibreELEC:~/.kodi/apache/etc/ssl # ls -l /storage/.kodi/apache/etc/ssl/private/
+total 2
+-rw-r--r--    1 root     root          1679 Oct 27 10:12 ssl-cert.snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl # cd private
+LibreELEC:~/.kodi/apache/etc/ssl/private # mv ssl-cert.snakeoil.key ssl-cert-snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl/private # ls -l
+total 2
+-rw-r--r--    1 root     root          1679 Oct 27 10:12 ssl-cert-snakeoil.key
+LibreELEC:~/.kodi/apache/etc/ssl/private # /usr/sbin/apachectl start
+(2)No such file or directory: AH02291: Cannot access directory '/var/logs/' for main error log
+(2)No such file or directory: AH02291: Cannot access directory '/var/log/apache2/' for error log of vhost defined at /etc/nextcloud.conf:2
+AH00014: Configuration check failed
+LibreELEC:~/.kodi/apache/etc/ssl/private # mkdir /var/logs
+LibreELEC:~/.kodi/apache/etc/ssl/private # mkdir /var/log/apache2
+LibreELEC:~/.kodi/apache/etc/ssl/private #
+
+
+
+LibreELEC:/var/log # more /var/logs/error_log
+[Sun Oct 27 10:15:40.473763 2019] [ssl:warn] [pid 0] AH01873: Init: Session Cache is not configured [hint: SSLSessionCache]
+[Sun Oct 27 10:15:40.698538 2019] [mpm_prefork:notice] [pid 8567230278186635816] AH00163: Apache/2.4.41 (Unix) OpenSSL/1.0.2q PHP/7.2.23 configured -- resuming normal operations
+[Sun Oct 27 10:15:40.698674 2019] [core:notice] [pid 8567210572871892992] AH00094: Command line: '/usr/sbin/httpd'
+
+/var/media/sda-usb-TO_Exter_nal_USB 
+
+
+#### about arm qemu setup
+### from https://community.arm.com/developer/ip-products/system/b/embedded-blog/posts/cross-compilation-for-arm
+Qemu and Binfmt
+
+If you try to chroot to an Arm root directory without setting an emulator you may get the following error message:
+
+  # chroot arm-rootdir/
+  chroot: failed to run command ‘/bin/bash’: Exec format error
+
+This happens because chroot is trying to execute arm-rootdir/bin/bash by default which is an Arm binary. If you want to run Arm binaries, you will need an emulator. For that purpose Qemu (Quick EMUlator) can be a good choice. It's relatively fast, and it supports many architectures like Arm, MIPS, PowerPC etc. For chrooting, you will need a statically linked Qemu to your host system. If you are using Ubuntu distribution, you can find it in qemu-user-static package or on older systems qemu-kvm-extras-static.
+
+Installing static Qemu on your host:
+
+  # apt-get install qemu-user-static
+
+Now you can verify your qemu-arm-static executable:
+
+  $ file /usr/bin/qemu-arm-static
+  /usr/bin/qemu-arm-static: ELF 64-bit LSB  executable, x86-64, version 1 (SYSV), statically linked, for GNU/Linux 2.6.15,
+  BuildID[sha1]=7fc1a20617692e0601e0faf2594730c8bf718e50, stripped
+
+
+#### end of arm qemu setup
+
+
+20191031
+1.mariadb . if we have installed db on kingidisk / in system hard disk, we need not to run mysql_install_db in it's startup mariadb.service preexec section. Or , run the directory --src-dir=/usr
+2.make apache2 loglevel to debug;sendfile off;
+
+20191103
+1.on funrb, added transmission libevent,mariadb 10.3.17, but funhome.tv failed to start. need to check why ?
+2.in homeimac's vmware ubuntu 64 should still be 20191031's version , with apache2 php(without php-fpm) ,mariadb 10.3.12 ,and data in KINGIDISK , work 4 dayes,but something wrong with linux?
+	--- in LibreELEC dmesg , "CPU: 3 PID: 716 Comm: sshd Not tainted 4.19.23 #1" , several CPU ,and serveral process event include kthread , and ssh . FINISHED.(Don't known why, but vanished)
+3.on Inspiron-530 , it is still building 20191031's version , with freetype 2.10.1 copied pkg-1-config to sysroot/usr/bin, and building for a day , until writing this note.
+4.check 20191031's apache2 sendfile need to off ?  .FINISHED 
+5.today we backup ele's packages to funrb. with backbd.sh include in the backup package. before today , the backup doesn't include it.
+20191106
+1.in homeimac's vmware ubuntu64/ele upgrade mariadb to 10.3.17
+2.remove mysql_install_db in mariadb.service,because 1.data is in KINGIDISK's data,2 startup problem.
+3.php add php-fpm; apache2 sendfile on;don't known why cannot enable opcache.   in php/package.mk copied opcache,but not php.ini and php-fpm.conf ,see nextcloudi on ele for reference .FINISHED
+
+20191107
+1.temp remove php-fpm; added opcache, need check. FINISHED
+2.yesterday's image , from inspiron-530 version run a day ,without any message of "Not tainted ...".
+3.opcache can cause apache error to cannot load . in php.ini............  FINISHED
+
+20191109
+1.opcache work ok,with current settings . make a backup, and a mark.:)
+2.still need to check php configuration directory ... but now it work with current settings.
+3.make a git commit .
+4.need to incorprate zerotier one , and transmission , and amule.
+
+20191110
+1.added zerotier one ,not tested on board. added ,but not start automaticly.public network is meaning:) "ZeroTier, Inc. operates a public network called Earth (no relation to the root server planet definition of the same name) with the network ID 8056c2e21c000001. Earth issues IPv4 addresses in the unused IPv4 space 28.0.0.0/7 and rfc4193 IPv6 addresses and allows multicast for service discovery. It’s essentially a global LAN party." . Need refine. should consider.
+2.removed DEBUG of php .FINISHED
+3.adding transmission.OK.added,but not start automaticly .FINISHED
+
+20191111
+1.box case design (openscad design learning)
+2.python LibreELECSettings program master.-> funhome.tv settings , Nextcloud and syncthing and transmission setup, startup (enable or disable) .FINISHED
+3.amule consideration . depends on wxWidgets gtk3 crypto++ at least. It cloud built on funrb with ubuntu libs , but not ele, don't known why. try it on ......
+
+20191114
+1.amule still cannot make.Just a stop , time comsuming.... Just ABANDENED.
+2.USB Massive Storage/USB Disk can boot on 3B+ , no need SD Card. Known. Saved SD Card. FINISHED
+3.master python to software setup for nextcloud,zerotier. settings of transmission or syncthing... Now nextcloud,zerotier and transmission in settingsi(Basicly) , but not syncthing. Need refine.
+4.got disk solid cad file , on OpenSCAD. in Mac's download file. we should make case and connect lines. Need refine.
+5.to save the total cost of funhome.tv , and make user accept the price , consider 1000 lower. Need refine.
+6.logo file need to complete for replace LibreELEC (Just Enough OS) . Funhome.TV (Connect Mobile&PC&TV)  .FINISHED
+7.make update work.setup update server.generate release key. Need todo.
+
+20191116
+1.read LibreELEC.tv python settings . until update. Need todo.
+2.get reasonable of progress. draw a picture of route map. Need todo.
+3.user if input ssh password , then it should be nextcloud 's username and password?  Need think and todo.
+4.when user enabled zerotier-one, register at zerotier.com , and got a network id (we automatic add it? accept it?), on phone or pc to setup funhome.tv box's ip and accept it to own network.
+... https://kodi.wiki/view/HOW-TO:Write_python_scripts . tutorials on how to write python scripts..
+
+20191130
+1. END in 2 service setting.FINISHED.
+	in making settings.funhome.tv , nextcloud should as a service. so , a nextcloud.conf should be at /usr/share/services .
+	if the nextcloud.conf even in 0 size NOT exist , settings.funhome.tv should hide the settings of it on screen.
+  nextcloud relied on apache2 and mariadb service.
+  like in avahi package.mk file 
+=====start of avahi package.mk =====
+post_makeinstall_target() {
+# for some reason avai can fail to start see: http://forums.gentoo.org/viewtopic-p-7322172.html#7322172
+  sed -e "s,^.*disallow-other-stacks=.*$,disallow-other-stacks=yes,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
+# disable wide-area
+  sed -e "s,^.*enable-wide-area=.*$,enable-wide-area=no,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
+# publish-hinfo
+  sed -e "s,^.*publish-hinfo=.*$,publish-hinfo=no,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
+# publish-workstation
+  sed -e "s,^.*publish-workstation=.*$,publish-workstation=no,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
+# browse domains?
+  sed -e "s,^.*browse-domains=.*$,# browse-domains=,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
+
+  rm -rf $INSTALL/etc/avahi/avahi-dnsconfd.action
+  rm -rf $INSTALL/etc/avahi/services/ssh.service
+  if [ ! $SFTP_SERVER = "yes" ]; then
+    rm -rf $INSTALL/etc/avahi/services/sftp-ssh.service
+  fi
+  rm -rf $INSTALL/usr/lib/systemd
+  rm -f $INSTALL/usr/share/dbus-1/system-services/org.freedesktop.Avahi.service
+  rm -f $INSTALL/usr/sbin/avahi-dnsconfd
+  rm -f $INSTALL/usr/bin/avahi-bookmarks
+  rm -f $INSTALL/usr/bin/avahi-publish*
+  rm -f $INSTALL/usr/bin/avahi-resolve*
+  rm -f $INSTALL/usr/lib/libdns_sd*
+
+  mkdir -p $INSTALL/usr/share/services
+    cp -P $PKG_DIR/default.d/*.conf $INSTALL/usr/share/services
+}
+===== end of avahi package.mk =====
+1.5 settings.funhome.tv should be ok with nextcloud(mariadb,apache2) / zerotier( user cannot select which network to jion ) / transmission appearence. NOT make zerotier.service and transmission.service.  Not TESTED. merged setting.funhome.tv and change DISTRO=FunHomeTV in bdfun.sh. FINISHED,unchecked.
+2. in booting from HDD, we should remove resizefs . in /usr/lib/libreelec/fs-resize . Now Boot from HDD , maybe not need to remove resizefs. FINISHED
+
+20191207
+1. we are building distre=FunHomeTV , with basic settings of nextcloud(apache2\mariadb,need to tell user use phone or PC connect funhome.tv nextcloud service port to setup),zerotier,transmission, and artwork of funhometv.  a basiclly work demo of funhometv. zerotier one setup need to think and get a solution.
+2.case box . 
+3.connection line , and power line.
+4.HDD boot refine.  No need to see now . FINISHED. maybe we can use a line like nextcloud-box to power raspberry pi and HDD.
+
+20191208
+1.funhome.tv build started , but cannot enter funhome.tv-settings. We have changed kodi's package.mk , to replace service.libreelec.settings with service.funhometv.settings. 
+2.on hbd.funhome.tv . we have build LE9.2 with funhome.tv.settings , should be the same with on this machine. ele.funhome.tv. . hbd.funhome.tv settings Upgraded to 1.0.2. 20191209.
+3.note:how to enable debug. In packages/sysutils/busybox/config/profile , there is a file named "/storage/.cache/debug.libreelec" ,touch it on Funhometv box's storage partition , and check logfiles in storage directory.  FINISHED
+4.turn the cannot start funhometv settings box debug on , to gather the log of service.py , locate problem. FINISHED.
+
+20191209
+1.according funhometv box debug log, "Apache is running a threaded MPM, but your PHP Module is not compiled to be threads", apache cannot run. so we should make php-fpm. FINISHED.
+2.today , after a day , testing box entered settings , but without service added content display , just no text on place , but with places blank. need fix.
+3.make settings update work, without rewrite the HDD completely. Partly . Need make website updates.funhome.tv work.
+
+20191210
+1.problems 1.power only one USB3 disk . 2.cannot play 4K video  3.settings need heavily modified to make zerotier and other settings work.
+2.python learning for 1.3 settings.
+3.20191207 .2. case box.
+4.20191207 .3. connection line and power line.
+5.php-fpm should work . checked. FINISHED
+6.systemd.master .mariadbdata directory in storage should be create with user mysql:mysql .FINISHED
+7.php-fpm : /var/run/php directory should be created or exist before starting. FINISHED
+8.look at zerotier , transmission service file . should FINISHED.checked.
+9.nextcloud php files should be /storage/nextcloud. FINISHED
+10.transmission start 5 process. 20191216. make the service type = forking , should FINISHED.checked.
+11.when start libreelec.addons the funhome.settings window open , maybe something related.
+
+20191214
+1.Add a partition for user data. make storage patition size 16G, then can remove resize.me progress(a long progress for large disk), and dont's remove users content on rewrite the disk;We can make user's content in the 3rd partition, mount to /var/userdata . Make nextcloud may update independent. And make system Update easier. CANCELED.FINISHED.
+2.fix systemd problem of 20191210.10. transmission start 5 process. and mariadb and zerotier. and apache2 . FINISHED. checked.
+
+20191215
+1.for systemd config , read "man systemd-system.conf" FINISHED.
+
+20191217 (today , Linux , apache2 , php and mariadb start and work cleanly. LAMP with php-fpm and opcache WORK.)
+1.mariadb service file , add a "-" in ExecPre , for a try. OK .FINISHED.with 600->700 .FINISHED 
+2.make update work. we can copy *img.gz to .update/  to implement update now . Need to make a JSON file on website to make real Update work. make updates.funhome.tv work. 
+3.make systemd max file size from 128k to 10M in systemd/package.mk  .FINISHED.
+4.add update gpg verify key from haoyq , so that only update from signed by haoyq. from site updates.funhome.tv. 
+5.make zerotier client work with new user email register , and make b.funhome.tv work. and make bbbb.funhome.tv start to serve. make funhome-settings to display network joined, user selected private network, current status of zerotier-one network. Need to clearly express.
+6.after user register a new zerotier-one account, make user picked name -> b.funhome.tv work. including . DDNS b.funhome.tv work. address get from zerotier-cli. Need to clearly express.
+7.make user apache2 lets encrypt certificate work.
+8. make funhome settings of transmission and apache2 , mariadb , zerotier one real work. now it just displayed , but not real work. need debug.
+9.php add imagemagick module . to make favicons work. and try fileinfo and memcache(redis).
+10.make funhome settings default chinese.
+
+20191218
+1.Boot on with localnet with or without internet. ie . default opening is in not connected zerotier ,but maybe internet connected.
+	tell user  with no internet , the box can only be used at home for backup  and play ,no download from internet.
+	with internet , but no settings , and no static address , the box can used at home for backup and play with download , no friends access outside home.
+	with internet , and settings go following.
+	with ssh (default off) samba (default on) and nextcloud(default on) kodi should always on.
+	in wizard (not configured , first boot), first ,in welcome screen 
+		 second ,told user the truth about current status (local network? , internet ok?) ,select to open nextcloud(nextcloud default off) .
+			when user not select nextcloud on , system should happy go on to settings of ssh .etc of Libreelec.
+			when select nextcloud on , then ask input username of nextcloud and password. and 
+				then ask about network configuration.
+				if (a.local network ok){
+				    if (internet ok){
+					if(select zerotier){ // private(recommended) and public is mutil selection , 
+							     //maybe all selected or select one , but not none.
+					     if(select private address) {
+						call  name the box as private zerotier. a.
+					     }
+					     if(select public address) {
+						call name the box as public zerotier  b.
+					     }
+					     if(none of private or public selected)  compain.
+					}
+					else //not selected zerotier
+					{
+					     if (static internet address or UPNP opened on router )
+						call name the box as public internet.  c.
+					     else
+						call name the box as localnet box  d.
+					}
+				    }
+				    else{ //no internet
+				    	tell user can only used at home,can name the box in mdns, no certificate .suggest to internet
+				    }
+				}
+				else{ //no local network
+				    tell user cannot use the box,suggest local network and internet
+				}
+
+					
+					
+				a.internet with zerotier private address .set box name , get email address. told funhome.tv .maybe also c or d or b.
+				b.internet with zerotier public address  .set box name(if set use it),get email address(if set use it),told funhome.tv
+				c.internet with static address.same as above
+				d.internet with local address .same as above
+	
+user name the funhome.tv box.-> pick a name , say box , AS "box.funhome.tv", not need to be aka. "UserName@example.com" . Of course , box namespace is in funhome.tv space, SO Cannot Dupplicate. The second user cannot name his box as box.funhome.tv, but maybe box2.funhome.tv. Or different mail like 12345@qq.com. 
+	** funhome.tv record the "box.funhome.tv" and their EmailAddress , use zerotier or not , 
+		GlobelIpAddress , local network address , zerotier address in IPV4/6 ,
+		current address in use (Globel IP/local/zerotier space) 
+		( UserName.funhome.tv -> ?  maybe private(Inner) & public(Outer) zerotier? i.UserName.funhome.tv /I4I/I4O/I6I/I6O, default to I4I),
+		datetime registerd , certificate valid date and time.
+  if user select to use zerotier --> system --funhome.tv box ( or user )  use UserName@example.com or 12345@qq.com(what user input email address)  to register a zerotier account, and 
+  then{	system --funhome.tv box  from UserName@example.com account of zerotier.com
+	a.	get the network_id(private), to join , Get IPV4 address in 10.0.0.0/8 or 172.16.0.0/16 or 192.168.x.x/24. or IPV6 address in /80 network. 
+		so the user get "UserName.funhome.tv" address (OR domain? ) , for nextcloud to use with zerotier on , and a certificate of Let's Encrypt. 
+			(cannot direct send and get mail with MX , because of address in localnet .) 
+			when share with friends , friends need join zerotier-network.
+	b.	get the network_id(public), to join , Get IPV4 address in 28.0.0.0/8, Or /80 IPV6 address .
+		so the user can use "UserName.funhome.tv" with zerotier on. But less secure than private network.	
+			(cannot direct mail with MX and normal mail setup)
+			when share with friends, friends need join zerotier-network.
+  }else if{ c.
+  user Not Register on zerotier , but on Internet with static address or DDNS address .
+		so the user get "UserName.funhome.tv" -> globle address , for nextcloud to use, and a certificate of Let's Encrypt.(CAN mail).
+			when share with friends, friends can just use.
+  }else if{ d.
+  user Not Register on zerotier, and not have static address , only on the localnet with internet access .
+		so the user get "UserName.funhome.tv" -> 192.168.x.x address, certificate should be useless , but can be make. 
+		nextcloud can only be used when the user is at home.  ( cannot direct mail)
+			when share with friends, friends can not use when not at your home.
+  }
+
+2.funhome.tv box can use the email address to inform user about transmission status . or as a mail server with very large mailbox size( TMail agaist GMail)? or what need to inform user?
+3.funhome.tv -- Connect mobile , PC & TV , cloud at own home. (TMail , Big File Storage.)
+4.mkdir /storage/nextclouddata/.opcache in scripts/image . FINISHED . in apachecertcp.sh of apache package.mk
+
+20191220
+1.make opcache.file_cache work. FINISHED.
+2.remove phpinfo() build configuration info . add a patch 0006 in php .FINISHED
+3.make funhome.tv settings work , at least startup ok , and real can start or stop service, need check.
+4.make b.funhome.tv box work as zerotier node. for xubin to test. on pc with windows and iphone. PC worked.FINISHED(except iphone)
+5.make update progress bar beautiful. remove the text.
+
+20191221
+1.zerotier-one need save the identity on disk for next boot, so in directory of /var/lib/zerotier-one directly is not work, move it to /storage/zerotier-one  and make a link to point to there. FINISHED.
+2.fix caldav carddav security and settings warnings . added in nextcloud.conf of httpd.conf  Should FINISHED.
+
+20191224
+1.for fix funhometv.settings , in /usr/lib/funhometv and /usr/lib/libreelec there maybe something or somewhere wrong. at least,directory name FINISHED.
+	
+20191225
+1.some notes about libreelec :   FINISHED.
+haoyq@haoyq-virtual-machine:~/repo/LibreELEC.tv/build.FunHomeTV-RPi2.arm-9.0-devel$ find . -name libreelec -print
+./util-linux-2.32.1/.install_pkg/usr/lib/libreelec
+./iptables-1.8.2/.install_pkg/usr/lib/libreelec
+./busybox-1.29.3/.install_pkg/usr/lib/libreelec
+./image/system/usr/lib/libreelec
+./lirc-0.10.0/.install_pkg/usr/lib/libreelec
+
+2.otherss need to change from libreelec to funhometv  .FINISHED.
+generated by : find . -exec grep -Hns libreelec {} \; | grep -v libreelec.tv | grep -v /run/libreelec |grep -v .armv7ve-libreelec >> ../todo.txt
+in packages directory.
+./network/iptables/system.d/iptables.service:3:ConditionPathExists=/usr/lib/libreelec/iptables_helper
+./network/iptables/system.d/iptables.service:11:ExecStart=/usr/lib/libreelec/iptables_helper enable
+./network/iptables/system.d/iptables.service:12:ExecReload=/usr/lib/libreelec/iptables_helper enable
+./network/iptables/system.d/iptables.service:13:ExecStop=/usr/lib/libreelec/iptables_helper disable
+./network/iptables/package.mk:25:  #mkdir -p $INSTALL/usr/lib/libreelec
+./network/iptables/package.mk:28:    #cp $PKG_DIR/scripts/iptables_helper $INSTALL/usr/lib/libreelec
+./network/connman/config/hosts.conf:7:# Example: 192.168.0.3 libreelec libreelec.mynetwork
+./network/samba/default.d/samba.conf:2:SAMBA_USERNAME="libreelec"
+./network/samba/default.d/samba.conf:3:SAMBA_PASSWORD="libreelec"
+./mediacenter/kodi/system.d/kodi-cleanlogs.service:4:ConditionPathExists=!/storage/.cache/debug.libreelec
+./mediacenter/kodi/system.d/kodi-waitonnetwork.service:8:ConditionPathExists=/storage/.cache/libreelec/network_wait
+./mediacenter/kodi/system.d/kodi-waitonnetwork.service:12:EnvironmentFile=/storage/.cache/libreelec/network_wait
+./mediacenter/kodi/package.mk:325:  #xmlstarlet ed -L --subnode "/addons" -t elem -n "addon" -v "service.libreelec.settings" $ADDON_MANIFEST
+./mediacenter/kodi/package.mk:326:  #we haoyq use funhometv to change libreelec , because if not, the box reboot with log say libreelec.settings is not installed.
+./mediacenter/LibreELEC-settings/system.d/backup-restore.service:7:ExecStart=/usr/lib/libreelec/backup-restore
+./mediacenter/LibreELEC-settings/system.d/factory-reset.service:7:ExecStart=/usr/lib/libreelec/factory-reset
+./mediacenter/LibreELEC-settings/package.mk:10:PKG_URL="https://github.com/LibreELEC/service.libreelec.settings/archive/$PKG_VERSION.tar.gz"
+./mediacenter/LibreELEC-settings/package.mk:23:  mkdir -p $INSTALL/usr/lib/libreelec
+./mediacenter/LibreELEC-settings/package.mk:24:    cp $PKG_DIR/scripts/* $INSTALL/usr/lib/libreelec
+./mediacenter/LibreELEC-settings/package.mk:26:  ADDON_INSTALL_DIR=$INSTALL/usr/share/kodi/addons/service.libreelec.settings
+./mediacenter/LibreELEC-settings/scripts/factory-reset:6:. /usr/lib/libreelec/functions
+./mediacenter/LibreELEC-settings/scripts/backup-restore:6:. /usr/lib/libreelec/functions
+./mediacenter/funhome-settings/system.d/backup-restore.service:7:ExecStart=/usr/lib/libreelec/backup-restore
+./mediacenter/funhome-settings/system.d/factory-reset.service:7:ExecStart=/usr/lib/libreelec/factory-reset
+./mediacenter/funhome-settings/package.mk:24:  #modify libreelec to funhometv
+./mediacenter/funhome-settings/package.mk:25:  #mkdir -p $INSTALL/usr/lib/libreelec
+./mediacenter/funhome-settings/package.mk:27:    #cp $PKG_DIR/scripts/* $INSTALL/usr/lib/libreelec
+./mediacenter/funhome-settings/package.mk:30:  #ADDON_INSTALL_DIR=$INSTALL/usr/share/kodi/addons/service.libreelec.settings
+./mediacenter/funhome-settings/scripts/factory-reset:6:. /usr/lib/libreelec/functions
+./mediacenter/funhome-settings/scripts/backup-restore:6:. /usr/lib/libreelec/functions
+./tools/rkbin/package.mk:5:# Version is: Kwiboo/tag:libreelec-ba436b9
+./devel/binutils/patches/binutils-01-warn-for-uses-of-system-directories-when-link.patch:6:/data/LibreELEC.tv/build.LibreELEC-Generic.x86_64-8.0-devel/toolchain/lib/gcc/x86_64-libreelec-linux-gnu/6.2.0/../../../../x86_64-libreelec-linux-gnu/bin/ld: warning: library search path "/usr/lib" is unsafe for cross-compilation, ignore it
+./addons/driver/hdhomerun/source/resources/lib/functions.py:52:libreelec:~ # hdhomerun_config discover
+./addons/browser/chrome/source/default.py:12:sys.path.append('/usr/share/kodi/addons/service.libreelec.settings')
+./addons/repository/repository.linuxserver.docker/sources/addon.xml:11:    <info compressed="true">https://raw.githubusercontent.com/linuxserver/libreelec-addon-repo/master/addons.xml</info>
+./addons/repository/repository.linuxserver.docker/sources/addon.xml:12:    <checksum>https://raw.githubusercontent.com/linuxserver/libreelec-addon-repo/master/addons.xml.md5</checksum>
+./addons/repository/repository.linuxserver.docker/sources/addon.xml:13:    <datadir zip="true">https://raw.githubusercontent.com/linuxserver/libreelec-addon-repo/master/download</datadir>
+./addons/tools/ffmpeg-tools/source/resources/language/English/strings.po:13:msgid "Please have a look at our Wiki (https://libreelec.wiki) for instructions how the FFmpeg binary could be used."
+./addons/addon-depends/qtbase/package.mk:16:                           -device linux-libreelec-g++
+./addons/addon-depends/qtbase/package.mk:54:  QMAKE_CONF_DIR="mkspecs/devices/linux-libreelec-g++"
+./addons/service/librespot/patches/librespot-02_kodi_hooks.patch:4:Subject: [PATCH] libreelec: kodi hooks
+./addons/service/librespot/patches/librespot-03_pulseaudio_sink.patch:4:Subject: [PATCH] libreelec: pulseaudio sink
+./addons/service/net-snmp/source/resources/settings.xml:5:		<setting label="32001" id="COMMUNITY" type="text" default="libreelec"/>
+./addons/service/docker/source/default.py:13:sys.path.append('/usr/share/kodi/addons/service.libreelec.settings')
+./addons/service/docker/source/examples/sickbeard.service:14:          --hostname=libreelec-%p \
+./addons/service/docker/source/examples/mysql.service:15:          --hostname=libreelec-%p \
+./addons/service/docker/source/examples/mysql.service:19:          --env=MYSQL_ROOT_PASSWORD=libreelec \
+./addons/service/docker/source/examples/sabnzbd.service:14:          --hostname=libreelec-%p \
+./addons/service/docker/source/examples/transmission.service:14:          --hostname=libreelec-%p \
+./addons/service/docker/source/examples/couchpotato.service:14:          --hostname=libreelec-%p \
+./linux-firmware/slice-firmware/package.mk:10:PKG_URL="https://github.com/libreelec/slice-firmware/archive/$PKG_VERSION.tar.gz"
+./linux-firmware/rockchip-firmware/system.d/hciattach-realtek.service:9:ExecStartPre=/usr/lib/libreelec/hciattach-realtek-config
+./linux-firmware/rockchip-firmware/package.mk:15:  mkdir -p $INSTALL/usr/lib/libreelec
+./linux-firmware/rockchip-firmware/package.mk:16:    cp $PKG_DIR/scripts/* $INSTALL/usr/lib/libreelec
+./sysutils/amremote/system.d/amlogic-remotecfg.service:7:ExecStart=/usr/lib/libreelec/remote-config
+./sysutils/amremote/package.mk:18:  mkdir -p $INSTALL/usr/lib/libreelec
+./sysutils/amremote/package.mk:19:    cp $PKG_DIR/scripts/* $INSTALL/usr/lib/libreelec
+./sysutils/amremote/scripts/remote-config:17:  /usr/bin/remotecfg /etc/amremote/libreelec.conf
+./sysutils/lirc/system.d/lircd-uinput.service:9:ExecStart=/usr/lib/libreelec/lircd_uinput_helper --add-release-events
+./sysutils/lirc/system.d/lircd.service:9:ExecStart=/usr/lib/libreelec/lircd_helper --nodaemon
+./sysutils/lirc/package.mk:43:  #mkdir -p $INSTALL/usr/lib/libreelec
+./sysutils/lirc/package.mk:46:    #cp $PKG_DIR/scripts/lircd_helper $INSTALL/usr/lib/libreelec
+./sysutils/v4l-utils/package.mk:87:    create_multi_keymap libreelec_multi "$IR_REMOTE_PROTOCOLS" $IR_REMOTE_KEYMAPS
+./sysutils/v4l-utils/package.mk:98:*		rc-rc6-mce	libreelec_multi
+./sysutils/v4l-utils/package.mk:102:meson-ir	*		libreelec_multi
+./sysutils/busybox/config/profile:16:  if [ -e /storage/.cache/debug.libreelec ] ; then
+./sysutils/busybox/system.d/debug-shell.service:7:ConditionPathExists=|/storage/.cache/debug.libreelec
+./sysutils/busybox/system.d/var-log-debug.service:8:ConditionPathExists=|/storage/.cache/debug.libreelec
+./sysutils/busybox/package.mk:129:  #mkdir -p $INSTALL/usr/lib/libreelec
+./sysutils/busybox/package.mk:132:    #cp $PKG_DIR/scripts/functions $INSTALL/usr/lib/libreelec
+./sysutils/systemd/system.d/debugconfig.service:6:ConditionPathExists=|/storage/.cache/debug.libreelec
+./sysutils/util-linux/system.d/swap.service:16:ExecStartPre=/usr/lib/libreelec/mount-swap create
+./sysutils/util-linux/system.d/swap.service:17:ExecStart=/usr/lib/libreelec/mount-swap mount
+./sysutils/util-linux/package.mk:79:    #mkdir -p $INSTALL/usr/lib/libreelec
+./sysutils/util-linux/package.mk:82:      #cp -PR $PKG_DIR/scripts/mount-swap $INSTALL/usr/lib/libreelec
+
+20191226
+1.  FINISHED
+worked by
+sed -i ./network/iptables/system.d/iptables.service  -e "3 s/libreelec/funhometv/"
+sed -i ./network/iptables/system.d/iptables.service  -e "11 s/libreelec/funhometv/"
+sed -i ./network/iptables/system.d/iptables.service  -e "12 s/libreelec/funhometv/"
+sed -i ./network/iptables/system.d/iptables.service  -e "13 s/libreelec/funhometv/"
+sed -i ./network/samba/default.d/samba.conf  -e "2 s/libreelec/funhometv/"
+sed -i ./network/samba/default.d/samba.conf  -e "3 s/libreelec/funhometv/"
+sed -i ./mediacenter/funhome-settings/system.d/backup-restore.service  -e "7 s/libreelec/funhometv/"
+sed -i ./mediacenter/funhome-settings/system.d/factory-reset.service  -e "7 s/libreelec/funhometv/"
+sed -i ./mediacenter/funhome-settings/scripts/factory-reset  -e "6 s/libreelec/funhometv/"
+sed -i ./mediacenter/funhome-settings/scripts/backup-restore  -e "6 s/libreelec/funhometv/"
+sed -i ./addons/browser/chrome/source/default.py  -e "12 s/libreelec/funhometv/"
+sed -i ./addons/tools/ffmpeg-tools/source/resources/language/English/strings.po  -e "13 s/libreelec/funhometv/"
+sed -i ./addons/service/net-snmp/source/resources/settings.xml  -e "5 s/libreelec/funhometv/"
+sed -i ./addons/service/docker/source/default.py  -e "13 s/libreelec/funhometv/"
+sed -i ./addons/service/docker/source/examples/mysql.service  -e "19 s/libreelec/funhometv/"
+sed -i ./linux-firmware/rockchip-firmware/system.d/hciattach-realtek.service  -e "9 s/libreelec/funhometv/"
+sed -i ./linux-firmware/rockchip-firmware/package.mk  -e "15 s/libreelec/funhometv/"
+sed -i ./linux-firmware/rockchip-firmware/package.mk  -e "16 s/libreelec/funhometv/"
+sed -i ./sysutils/amremote/system.d/amlogic-remotecfg.service  -e "7 s/libreelec/funhometv/"
+sed -i ./sysutils/amremote/package.mk  -e "18 s/libreelec/funhometv/"
+sed -i ./sysutils/amremote/package.mk  -e "19 s/libreelec/funhometv/"
+sed -i ./sysutils/lirc/system.d/lircd-uinput.service  -e "9 s/libreelec/funhometv/"
+sed -i ./sysutils/lirc/system.d/lircd.service  -e "9 s/libreelec/funhometv/"
+sed -i ./sysutils/util-linux/system.d/swap.service  -e "16 s/libreelec/funhometv/"
+sed -i ./sysutils/util-linux/system.d/swap.service  -e "17 s/libreelec/funhometv/"
+
+2. in kodi scripts/kodi.sh added DEBUG=yes for debug . when production , should remove.
+
+
+20191227
+1.make sure funhome-settings startup with wizard correctly. with debug to see /storage/.kodi/temp/kodi.log
+2.change default language of funhome-settings to chinese.
+3.finish the network selection settings for user to setup network.
+
+20191228
+1.because of freshstart , we need to make a directory on /storage/zerotier-one . as 3 and 4 , we added in busybox tmpfiles.d config file. FINISHED
+2.fix funhome-settings start up with wizard very slow. and funhome-settings not in kodi settings screen.  as 5 , now it should appear.:) . appeard with ugly picture, but still slowly. see 8.
+3.chech mariadbdata directory , should exist when boot freshstart . as following , we added in busybox tmpfiles.d config file , need changeown in mariadb package.mk file FINISHED
+4.nextcloud should owned by daemon:daemon , and make a directory of /storage/nextclouddata. we added in busybox tmpfiles.d config file. as owned by root:root , so we should changeown in apachecertcp.sh   FINISHED
+5.to show funhome-settings , modify /home/haoyq/repo/LibreELEC.tv/build.FunHomeTV-RPi2.arm-9.0-devel/kodi-theme-Estuary-1.0/.install_pkg/usr/share/kodi/addons/skin.estuary/xml/Settings.xml
+ <item>
+						<label>LibreELEC</label>
+						<onclick>RunAddon(service.libreelec.settings)</onclick>
+						<icon>icons/settings/libreelec.png</icon>
+						<visible>System.HasAddon(service.libreelec.settings)</visible>
+					</item>
+
+can make modify in estuary-theme package file. change icon file , and add sed to change contents.  FINISHED.
+6.in funhome-settings v1.0.4 still in xml have service.libreelec.settings , should change to service.funhometv.settings. we added v1.0.5.  FINISHED
+7.in apachecertcp.sh we should make nextcloud's config/config.php trusted network to "*" or make funhome-settings to setup nextcloud's trusted network.
+8.according to boot-fresh.txt , a new fresh start of now build of funhometv box journalctl log , it 's maybe updates.funhome.tv caused enter wizard slowly. FINISHED .
+
+20191230
+1.make updates/ addons / releases of funhome.tv site work for funhome-settings to startup correctly. 
+2.make updates work.
+3.make releases.json work.
+4.make funhome-settings work for network setup as 20191227.3
+
+20200116
+1.make soft/hard reset work . now hard reset removed nextcloud in /storage. FINISHED. by put nextcloud bz2 archive in /usr/www/nextcloud, and in apachecertcp.sh we extract it when needed. And removed the nextcloud copy in mkimage and image scripts. 
+2.in x86-64 funhome-settings v1.0.6 chinese is still not in language selections. Should finished. in 1.0.7
+ for build should exec "rm -fr build" and "make && make addon"  FINISHED.
+
+20200118
+1.the certificate (b.funhome.tv's cert) copy in apachecertcp.sh maybe a problem,  should consider to generate on the fly.
+2.need to make network setup work. as 20191227.3
+3.today (yesterday) we make virtualbox 6.1.2 work on linux , so debug funhome-settings should be easier;). FINISHED.
+4.adjust kodi skin default font to arial , make chinese to display ok. FINISHED.
+5.add chinese in kodi for offline use. in offline state, kodi cannot switch to chinese cleanly. should FINISHED.
+
+20200121
+
+funhome.tv settings contents  OR network settings wizard todo  
+1.next cloud service (default on; when off: stop apache2 & mariadb) FINISHED.
+2.zerotier service (default off)
+  when on: display node id, network status , as zerotier-cli info .
+  user should input network id .
+needed: 2 strings
+a.network id of zerotier use . (if user already setup on pc or mobile, easy user to join by 1.directly input or 2.scan the generated qrcode on screen , paste in 16 byte .)
+b.name of the box. blablabla.funhome.tv  (recommended name of the box is needed for user to easy setup).
+[blablabla at least 3 letter.for the  Internet use, not localnet 
+dns name of funhome.tv]
+...key of blablabla.funhome.tv:
+ generate after blablabla.funhome.tv use selected ok .
+...ip address: get from zerotier or connman 
+
+ [user can scan qrcode ? input from remote control?] user should setup zerotier account on pc or mobile . and put network id to a txt file in nextcloud "network settings" file.
+SHOULD reflect the vpn state.when on , network id and address.
+
+so, setup can be made first reg machine-id to funhome.tv, then generate qrcode for easier user input contents.
+
+3.transmission daemon on/off .by remote control, from mobile or PC. Just tell user in guide.
+4.syncthing on off  NOT PLAN, TIME .
+5.bluetooth a2dp ? on off  NOT PLAN, TIME.
+
+network settings wizard todo
+laterly need.
+1.add sign key check for update package. aka sign the update package with a fixed private key, in update scripts of busybox check signature with the public key of the package.  FINISHED
+2.make dyndns like freedns.afraid.org work. It is a client server process. On site of funhome.tv , setup php/python work to record the Unique ID of the funhometv box, network id of the user input(of zerotier) , name of funhometv box aka blablabla(.funhome.tv).  .reading request , json-rpc, workstuff(w???)
+
+
+20200130
+1.import the private sign key of e.hao@aol.com in signtest directory. FINISHED.
+2.added gnupg and 5 packages for the sign of kernel and system, and modified busybox/scripts/init , removed md5 file check but added file sign check.  FINISHED.
+3.in connman , enabled the zt interface to see the connection for a test , to easy python setup of zerotier. should FINISHED . need check.
+4.release of 1.0.0 with sign check, release.json , and point update.a.funhome.tv -> 192.168.1.116. aka the notebook . part FINISHED. need port 8080-> 80
+5.funhome.tv site work of update.php , for get machine-id and DDNS name setup. For Setup , in the first boot of "please resize me" process , post machine-id to funhome.tv site , to get a name for the box
+
+20200131
+1.make a gpgv-static in initramfs stage. FINISHED. work OK.
+for reference from debian build packages (get from apt source gpgv-static)  rules in gnupg-2.2.4/debian/rules
+########## start of rules part.#####
+# avoid -pie for gpgv-static on hppa, kfreebsd-amd64, and x32
+# platforms, which cannot support it by default:
+ifeq (,$(filter $(DEB_HOST_ARCH), hppa kfreebsd-amd64 x32))
+GPGV_STATIC_HARDENING = "-pie"
+else
+GPGV_STATIC_HARDENING = ""
+endif
+
+ cp -a build-gpgv-udeb build-gpgv-static
+        rm -f build-gpgv-static/g10/gpgv
+        cd build-gpgv-static/g10 && $(MAKE) LDFLAGS="$$LDFLAGS $(GPGV_STATIC_HARDENING) -static" gpgv
+        mv build-gpgv-static/g10/gpgv build-gpgv-static/g10/gpgv-static
+######### end of rules part.###########
+so get static by make LDFLAG+= "-pie -static" for gpgv build.
+
+20200201
+1.make a static gpgv   FINISHED. work OK.
+in g10/Makefile
+
+gpgv_LDADD = $(LDADD) $(LIBGCRYPT_LIBS) \
+              $(GPG_ERROR_LIBS) \
+              $(LIBICONV) $(resource_objs) $(extra_sys_libs)
+
+gpgv_LDFLAGS = $(extra_bin_ldflags)
+
+a least libgrypt_libs needed static and gpgv also
+
+20200203
+1.in img.gz upgrade , gpgv cannot find *.sig file , in p30 photo.  FINISHED. check file's dir changed
+2.funhome.settings addon ID should adjust , Bluetooth and zerotier or transmission mixed. should FINISHED.
+3.transmission remote control cannot connect problem.
+
+20200204
+1.zt interface remove in connman .FINISHED
+2.funhome-settings display zt address correct , wizard connection setup zerotier, join and leave correct.dynamic network connections for zerotier network. beautify address and type , seprate IPv4 and IPv6. FINISHED
+3.default disable samba, if enable , warn. FINISHED  . autoshare is tured to 'false' default. 20200208
+4.flash partition size made to 1G .FINISED 20200208
+5.funhome-settings backend, reg.funhome.tv setup , with jsonrpc python backend. DDNS, ACME , Sign of product .maybe need release.a.funhome.tv addon.funhome.tv reg.funhome.tv to work.
+6.gpgv check kernel.img and system file's directory work for img.gz . FINISHED.
+
+20200208
+1.chinese should be selectable.and setable . now can use settings of addon to enable chinese. FIXME. FINISHED. removed chinese package in funhome.settings, Download the update from libreelec.tv.
+2.zerotier if set first ,then it should be remembered, not set it again and again. FINISHED.
+3.disable samba in systemd. -aka not start automatic, by if user insist to use , can enable. FINISHED.
+
+20200209
+1.name register in funhome.tv. should not be dupped in space of funhome.tv.
+2.reserve com.funhome.tv for copration operate. means --> update.com.funhome.tv for update of funhome.tv. FINISHED update.com.funhome.tv -> 221.214.1.73 . some settings if funhome.tv project options need adjust.
+3.user can use personnal name , mobile phone number , acient names like huoqubing\xinqiji , or user like to name.
+4.the database can use u16's mariadb in zerotier , routed by imac, for first bootstrap of box with machine id. open only in the innernet  not the internet. like 7. FINISHED.
+5.only registerd device with machine id in database can name itself with dns update like huoqubing.funhome.tv. can point to A or AAAA zerotier addresses of the device. backend FINISHED.
+6.the api should in tls protect. aka com.funhome.tv should be https://nic.com.funhome.tv/nic/update=$MACHINEID&A=$IPv4Address&AAAA=$IPv6&name=huoqubing .  it should be on the internet for the box to update address , and name. in one day a limit of 1000 times limit.  One machine can only have one record , and one name , maybe add '6' for ipv6 address like "huoqubing6.funhome.tv". Can be huoqubing.funhome.tv A-> ipv4 address, huoqubing6.funhome.tv AAAA-> ipv6 address. backend FINISHED. nic --> port 5443 https://nic.com.hunhome.tv:5443/nic?machineid=alsdf&a=........
+7.the reg site can be http://reg.com.funhome.tv/reg/host=$MACHINEID . it should only work in innernet. and NEVER internet. FINISHED. reg.com.funhome.tv --> 192.168.1.102 . maybe later others. but always should be on zerotier network, real app should on u16, with route from imac to u16 , but diffent from nic.com.funhome.tv with port. aka nic can be 5443 with tls, but reg.com.funhome.tv without tls with zerotier to u16 another port like 5080. For they use the same database of PdnsAdmin and pdns. We can first start with same content of funrb on nele to build a development environment.   FINISHED.
+8.the machineid should be protected from anyone to read, and persistent in hard disk if first 8192 sector's last part.
+9.then the box can get ACME certificate of huoqubing.funhome.tv for apache server to operate. by .https://nic.funhome.tv/cert/box=$MACHINEID . maybe should following acme 's guide to do.
+maybe should _acme_chanlenge_.huoqubing.shumafu.com . as it should be of b.funhome.tv.
+10.certificate applying process  should be put in crond of the box , for 3 or 2.5 month to update it .
+11.machineid  can be "50-82" / 128 byte of "openssl dgst -sha512 -hmac /etc/machine-id /etc/machine-id" for upper $MACHINEID to use. .FINISHED.
+	example.
+	openssl dgst -sha512 -hmac /etc/machine-id /etc/machine-id
+HMAC-SHA512(/etc/machine-id)= f24b82abfee34875f2dcd3392a8cb09a83f201a1fc670e28af526b96e9f42e89fe64bd63697861f11a8e82211df836098f5f494c51d24df466002233adf0368
+0        1         2         3         4         5         6         7         8         9         10
+f24b82abfee34875f2dcd3392a8cb09a83f201a1fc670e28af526b96e9f42e89fe64bd63697861f11a8e82211df836098f5f494c51d24df466002233adf0368
+result is "f526b96e9f42e89fe64bd63697861f11a" used as upper $MACHINEID.
+
+20200214
+1.about the procedure of register a name on funhome.tv (to prevent dirty data of different machine) mainly for ipv4, for ipv6, we should setup a ipv6 server and focus on name6, with the same table and database. 
+	 .. need first transform pdns.records table to pdns.machinedns(aka,all self input in powerdns-admin should be protected from machine to register ), and in program control machine cannot use com.funhome.tv as postfix....
+	a, machine start by post reg with 32byte /128 bit if machine to pdns.machinedns table, --no need -- but nic --if name not exist in pdns.machinedns , insert with machineid,a,name,aaaa,name6,created-time,created-by-reg;
+	b,											else not insert and reply to client .
+	c,after success of a, machine owner can enter nic update program. if not , the machine cannot update it's name in funhome.tv's dns.
+	d,in update(nic) program, the nic check if machineid in database of pdns.machinedns table, if exist can continue, else report error and stop.
+	e.if name [ (not exist in pdns.machinedns || is posted by himself) && name not end with "com.funhome.tv" ], update with machineid,a,name,aaaa,name6,update-time,updated-by-nic. if success , continue to post to pdns.api of patch. if ok or not , report to client.
+	f,else( name exist and is not posted hisself) report the client and exit.
+.FINISHED. checked. puted in git .
+2.check machineid generate time , persist machineid anyway for a machine , no matter softreset or hard-reset of funhome-settings.  FINISHED.  checked. modified factory-reset
+
+20200215
+1.make nic online with tls protect. work with pdns of funhome.tv . FINISHED.
+2.make funhome.settings work with nic , user can use faker to choose name, query by dns normal query. first 2 FINISHED. the last is not used.
+3.make reg work within hwm ssh tunnel to 192.168.1.116:5080, to 172.16.105.192:5080. should FINISHED.
+
+20200216
+in funhome-settings.
+1. fix error when backward wizard with network status overlay the language box.  FINISHED.
+2. samba 's prompt in wizard is not displayed . FINISHED.
+3. zerotier's status of enablement should like ssh , once enabled, shouldnot automatic disabled later without user action.  FINISHED.
+
+20200217
+1.when first start of funhome-settings , post reg of machineid , and build a mark."/storage/.config/factory.status". This step should acomplished before the box out of factory. -- in factory step , can connect to reg.com.funhome.tv;after the time, warn should return to factory.  FINISHED.
+2.after check "/storage/.config/factory.status" mark successly , nic can be used to setup a name on "thename.funhome.tv". It can default to zerotier-id of the box ,so that user input less(but hard to remember). or user selected any name can pass nic.com.funhome.tv.
+3.after namesetuped , get a certificate from https://nic.com.funhome.tv:5443/getcert . as 20200221 .1 . maybe cannot too quickly. or we not need it ? zerotier already (not from client to server , but from clientmobile to server . just a little diffent. )
+
+4.#we haoyq should make nextcloud/config/config.php 's trusted network is "*" we should write in manual.
+5.change default of nextcloud/data to /nextclouddata  in default config setup of nextcloud. FINISHED. 18.0.1 solved the problem with autoconfig.php .
+6.add manual for user to setup funhometv box , zerotier register, nextcloud setup in webpage, download nextcloud/zerotier/kodi client on PC/mobile.
+7.added factory status reg and file check , FINISHED FIXME. checked(not full, after 2 dayes , it still "server gone away") . not starting nic .
+
+20200218
+1.translate privacy policy.txt in kodi-18.1-Leia/
+
+20200221
+1.after dayes of dig into DNSSEC and DNS , and Let's Encrypt site of rate control 50 sites per week per one domain (buy from TLD, or .com or .co.uk like) , We maybe CANNOT make every device with one ceritificate. But We maybe CAN Don't use the certficate at all. Because we are using zerotier-one , it is already encrypted. So , we can keep issue certificate , but don't reliaed on it . Have a check with DANE TLSA , to see if nextcloud client can use TLS with DNSSEC on and DANE TLSA record check , to elimate the need of the  Public CA.
+2. mariadb upgraded to 10.4.12 , by removed AUTH_PAM plugin. FINISHED. reverted to 10.3.17. Because of start failed timely. upgrade to 10.3.22 for a try. FINISHED.
+3. upgrade nextcloud server to 16.0.8 from 16.0.5. FINISHED. we upgrade to 18.0.1
+4."mysql server" has gone away . should be solved by have a pool of database connection, when server gone away , reconnect it as the mysql command client does.
+INFO in reg: reg error with exception:(2006, "MySQL server has gone away (error(104, 'Connection reset by peer'))")
+{"reg error": "(0, '')"}            FINISHED. 
+5.finish funhome-settings hostname setup(and wizard)  with DNS record of the box device on funhome.tv setup correctly. So that user can use zerotier to connect to the box device. FINISHED.
+6.Setup https://funhome.tv web site in a free host site provider. The site only need several page in PC and mobile all can see with builder of github.com software . put user guide( and wiki?) on it .
+7.Change DEBUG=yes from busybox's init to DEBUG=no when all ready !
+8.acmebot is good one for certificate apply with follower and master. maybe we need to modify it for setup of cerificate on funhome box with DANE TLSA record . 
+
+20200222
+1.adjusted the sequence of mariadb and apache2 , so that it should before kodi and after network-online. FINSHED.
+2.zerotier-one network status should be updated to reflect the status in time , maybe 30 seconds a refresh or a thread being notified by zerotier , should look at how zerotier-one offical client refresh it status. FINISHED. 60 seconds a refresh.
+3.factory status should be only in the factory by operator use keyboard to ALT-F3 fire postreg.py or have a look at the /storage/.config/factory.status .  and restart the device. so the factory.status is optional.and display of Factory Failed can be removed ??(because?? FIXME). It is a type of quantity control check work or QC(qiu xi)
+4.maybe zerotier setup in wizard should display the node id of the zerotier-one. Or user don't known which one to accept in zerotier-one control panel. FINISHED.
+5.check funhomenic work ok. FINISHED.
+
+20200223
+1.funhomenic update hostname with address, the address should be : when zerotier enabled , the address is get from zerotier, and the first network 's ip address if there are more networks. when zerotier not enabled , the address is locale address get from localenetwork of connman. with DHCP normally. FINISHED. 
+
+20200225
+1.make a .nicnocheck file in .cache , and perserve in soft/hard reset , to make factory fail display not so active displayed. when have once postreg successed , the .nicnocheck should be created and preserved. .as 20200226.1 . use the .config/factory.status instead , preserve in soft/hard reset. FINISHED.
+2.user should only adjust the hostname, but not funhome.tv in system name setup. aka for blablabla.funhome.tv , user should only adjust the blablabla , with funhome.tv untouched. in wizard and main window. in wizard FINISHED. need fix main window.
+3.make postreg.py in apachecertcp.sh to later part. so it work in later time. so it may work correctly. Now , it is called, but seems not work. we can make a log of it to check.  FINISHED.
+4.time to setup addons/releases/update .com.funhome.tv sites. for chinese addon to work. or change to libreelec.... maybe.  and update distributions/FunHomeTV/option of ADDON_URL ADDON_SERVER_URL 
+and
+# Distribution Specific source location
+  DISTRO_MIRROR="http://sources.libreelec.tv/mirror"
+  DISTRO_SRC="http://sources.libreelec.tv/$LIBREELEC_VERSION"
+indeed....
+# Distribution Specific source location
+  DISTRO_MIRROR="http://sources.a.funhome.tv:8080/mirror"
+  DISTRO_SRC="http://sources.a.funhome.tv:8080/$FUNHOMETV_VERSION"
+
+# Addon Server Url
+  ADDON_SERVER_URL="https://addons.a.funhome.tv:8443"
+
+# set the addon dirs
+  ADDON_PATH="$ADDON_VERSION/${DEVICE:-$PROJECT}/$TARGET_ARCH"
+  ADDON_URL="$ADDON_SERVER_URL/$ADDON_PATH"
+
+5.address startup with no user set with 0.0.0.1 , is problem. should be it's locale address. need check no network . should finished. FINISHED.
+6. in english not prompt funhomenic success or failure.  FINISHED.
+7.if zerotier disabled, ztstatus should not start to work . FINISHED.
+8.make samba intro less . should FINISHED.
+9.system ip address ip6adress not updated.  FINISHED
+10. disable the text or other prompt in menu to action, just for display.
+
+20200226
+1.api should consist, success is 200 , and other error code then should be 300... or jc.CANNOT be readed. FINISHED.
+2.postreg.py generated .config/factory.status should preserved in soft/hard reset.  FINISHED.
+3.when leave zerotier network , update system name's according ipaddress,ipv6address. FINISHED.
+4.If user selected name , shouldnot regenerate a new name. even user leave a zerotier network. FINISHED.
+5.ipv6 name and address need nic updated. FINISHED
+6.postreg.py errorlog is 
+urllib2.URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+	we can move postreg.py later to do the work , or make it recycle when Temporary failure.
+	make later to for a try. FINISHED this try. we sleep 20 seconds. REMOVED 20 seconds. systemd solved.
+
+20200227
+1.make tls cert is ok ,need check. after set_hostname do make-tls-cert. FINISHED.
+2.incorporate acmebot if have time , to apply LE's certificate. for user to select.
+3.factory.status should be ok now. if first failure, just reboot or manually run postreg.py should be ok. FINISHED. after fix apachecertcp.sh .
+
+20200302
+1.make nextcloud install config.php default to following , make user less input. in 18.1 FINISHED.
+'trusted_domains' =>
+  array (
+    0 => 'who-jennifer.funhome.tv',    ####hostname
+  ),
+  'datadirectory' => '/storage/nextclouddata',  #### directory
+  'dbtype' => 'mysql',                  #### dbtype
+  'version' => '16.0.5.1',
+  'overwrite.cli.url' => 'https://who-jennifer.funhome.tv',
+  'dbname' => 'nextcloud',       ####dbname
+  'dbhost' => '127.0.0.1',       #### dbhost
+maybe not to use autoconfig.php , but some fix of the config.php or other php to solved it . use of autoconfig.php may make user don't known username and password , and forget to change , then lead to security problem.  user should input the username and password when setup.
+
+2. fix zerotier start systemd problem. it should be systemd settings problem of apache2/mariadb.and kodi related. should FINISHED. 
+3. maybe upper problem is the reason of cannot normally  reboot on virtual box .6.1.4 and sometime have the network temply cannot work , because of cannot resolve names. some target maybe set in systemd.
+4.read systemd docs , and solve the startup sequece problem. FINISHED.
+5.design the box with openscad.
+6.automatic apply LE's certificate. in background , report when success. may add a button in interface menu, let user to choose to work.
+
+20200303
+1.upgrade php to newest. FINISHED. 18.0.1
+2.upgrade nextcloud first to 16.0.8; make a 18.0.1 a test drive. FINISHED.
+3.apply for a new certificate of snakeoil should be in a solo menu for user to do. or never generate for automatic.
+4.some log from kodi.log of settings. should fixed. need check.
+oe::updateSystemAddress::Error ## AttributeError("system instance has no attribute 'update_system_address'",
+)
+2020-03-03 20:40:36.998 T:140714175088384   ERROR: Traceback (most recent call last):
+                                              File "/fam/erichao/funhome.tv/build.FunHomeTV-Generic.x86_64-1.0.0/funhome-settings-1.0.22/.install_pkg/usr/share/kodi/addons/service.f
+unhometv.settings/oe.py", line 509, in updateSystemAddress
+                                            AttributeError: system instance has no attribute 'update_system_address'
+
+
+5. no ip address first start without zerotier setup.   --->    system::funhomenic ipv4-ipv6-name-name6: ## None-None-u'mission-jacqueline.funhome.tv'-u  . FINISHED. added get_ip_address.
+
+20200304
+1.if user disabled zerotier , we should modify ip and post to funhomenic .  need check. FINISHED.
+
+20200305
+1.setup update.com.funhome.tv and releases.com.funhome.tv/.....tar to work. according to update.py.
+and  from https://forum.libreelec.tv/thread/6078-le-settings-addon-updates-php/
+VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+    Code for the update back end is not public and for several reasons there are no current plans to change that. If you'd like to explain your interest in more detail we may be able to answer questions.
+
+
+Ok I get that.
+I would like to know how the reply from this file is constructed so I can do my own implementation to auto-update a custom distribution.
+I have already set up the releases server with the releases.json file.
+I don't need the other code you may have for your internal needs ;)
+
+
+EDIT: Well, if I'm not mistaken the reply is something like:
+Code
+
+    {"data": {"folder": "releases", "update": "LibreELEC-Generic.x86_64-8.0.0.tar"}}
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+we can use https://update.com.funhome.tv:6443/"FunHomeTV-RPi-arch-version-builder.tar". And URL is 
+https://update.com.funhome.tv:6443/updatelist act as update.php in python just as flask funhomenic do.
+
+2. update_system_address is fixed . need check. FINISHED
+3. fix prompt in funhome.settings of "Zerotier One" "Enable Zerotier One" "Leave Z"  in chinese translate.
+
+20200306
+1.move all data from shumafu.com to a funhome.tv device , and start to use it . for user should remember to use zerotier with nextcloud.
+2.when disable or enable zerotier , should update Gui of system name and ip address. like connman does. 
+3.should we mix os version with machinedns ? in one database table ? . for longger run . split maybe better. create table .
+
+20200307
+1.use transmissionrpc to download updates in torrent , in order to off the load of the server when a update is made. FINISHED.
+2.setup the update.com.funhome.tv site  with https://update.com.funhome.tv:6443/FunHomeTV-RPi-arch-version-builder.torrent to include the tar file.
+
+20200308
+
+1.to redistrabute the update file of .tar or img.gz in size of 400M. we use torrent.
+setup a release.com.funhome.tv site with nginx:6443
+	generate releases.json using releases.py , point to .torrent for each .tar and .tar.gz . and generate the torrent file . the release.py should be modified to replace '.tar' / '.img.gz' with corresponding .torrent file . For example, 'a.tar' -> 'a.tar.torrent' , and 'a.img.gz' -> 'a.img.gz.torrent'. 
+1.5. And the release procedure is that follow. First generate '.tar' or '.img.gz' file ,Second generate '.torrent file' , Third copy .torrent to web of releases.com.funhome.tv , and copy the '.tar' or '.img.gz' to seed machine on a pc . Fourth generate the 'releases.json' for funhome.settings to download .   
+2.setup a tracker  .com.funhome.tv on 221.214.1.66:19979 or use DHT trackerless. FINISHED. made tracker and make a torrent with transmission-create -p (private)
+3.use transmissionrpc to download the tar .  FINISHED.
+4.should setup a downloader act as a seed. for others to download . Setup on devpc-10 with uTorrent a tar file. FINISHED. for test.
+
+20200310
+1.added pppoe in connman to setup a wifi-ap in nele.funhome.tv with pppoe-git.patch in package/network/connman/patches.
+2.use the uper line with pppd and ppp should installed, and modify funhome.tv.settings to use. in next release time , maybe 1.0.1 , when i have time. first finish without it.
+
+20200311
+1.at /fam/erichao/tmp/test of hwm.funhome.tv have a updatetest.py for test update in bittorrent.
+2.put a .torrent file in u16:/var/www/html/update.com.funhome.tv . nginx setuped.
+3.make a test on an virtual env  with transmission installed , and can be viewed by remote.
+4.for the update python  of update.com.funhome.tv , and autoupdate of it , there is a logic of update to a newer version, or just more newer version . In order to make the funhometv box reliable update .
+
+20200312
+1.update.com.funhome.tv python fbe in funhome.fbe/RestAPI FINISHED
+2.tracker.com.funhome.tv at 221.214.1.66:19979 == tracker.com.funhome.tv:19979 . update createtorrent.sh FINISHED.
+3.update 1.0.0 to 1.0.1 in tar name to make test download again and again.. for test. FINISHED.
+4.point update.com.funhome.tv to nele.funhome.tv;  no , for develop , use nele.funhome.tv;production , update.com.funhome.tv FINISHED.
+
+20200314
+1.system dns settings of the box saved in oe_settings , for lasttime of hostname/ip address. FINISHED.
+2.auto update worked. FINISHED
+3.release process steps  write down. FINISHED.
+4.full test for release candinate. RC 1 . some problem of autoconfig.php maybe .
+5.make a map or route for version management , in database, no need to modify code everytime release file.
+
+20200315
+in development release test.
+1.in wizard welcome screen , modify prompt of "connect you to the internet". FINISHED.
+2.in second screen the network (connman) screen , remove Youtube etc. FINISHED
+3.releases.com.funhome.tv:80/releases.json timeout 2 minute.  development changed to releasesdev.com.funhome.tv:80/releases.json.   should FINISHED.
+4.ip address send to machinedns with localaddress 192.168.1.121, with later zerotier one network online , but address unchanged. in menu , system name and ipaddress is ok , but not DNS. although work well with local address , but not the internet. need check , should FINISHED.
+5.nextcloud logined, but certificate name is not the system name but funhometv in snakeoil . need check. should FINISHED.
+6.notified update available , but not downloaded.
+7.for .well-known/caldav , https://docs.nextcloud.com/server/18/admin_manual/issues/general_troubleshooting.html#service-discovery  . try to fixit.
+8.for .well-known/carddav , https://docs.nextcloud.com/server/18/go.php?to=admin-setup-well-known-URL . try to fixit.
+9.some errorlog means need to fix write_settings: should FINISHED.
+VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+2020-03-15 15:41:40.185 T:139873850050304   DEBUG: ## FunHomeTV Addon ## system::funhomenic ## nicurl:http
+s://nic.com.funhome.tv:5443/nic,urldatastr:machineid=01a4fe1428273b9c6dba858c944181a2&a=10.0.0.94&name=per
+ez.funhome.tv&aaaa=fd80%3A56c2%3Ae21c%3Ab2cd%3A8399%3A9308%3A27c1%3A475d&name6=perez6.funhome.tv
+2020-03-15 15:41:40.185 T:139873850050304   ERROR: ## FunHomeTV Addon ## oe::write_setting ## ERROR: (Type
+Error('node contents must be a string',))
+2020-03-15 15:41:40.185 T:139873850050304   ERROR: Traceback (most recent call last):
+                                              File "/fam/erichao/funhome.tv/build.FunHomeTV-Generic.x86_64
+-9.0-devel/funhome-settings-1.0.22/.install_pkg/usr/share/kodi/addons/service.funhometv.settings/oe.py", l
+ine 672, in write_setting
+                                              File "/usr/lib/python2.7/xml/dom/minidom.py", line 1611, in 
+createTextNode
+                                            TypeError: node contents must be a string
+2020-03-15 15:41:40.186 T:139873850050304   ERROR: ## FunHomeTV Addon ## oe::write_setting ## ERROR: (Type
+Error('node contents must be a string',))
+2020-03-15 15:41:40.186 T:139873850050304   ERROR: Traceback (most recent call last):
+                                              File "/fam/erichao/funhome.tv/build.FunHomeTV-Generic.x86_64
+-9.0-devel/funhome-settings-1.0.22/.install_pkg/usr/share/kodi/addons/service.funhometv.settings/oe.py", l
+ine 672, in write_setting
+                                              File "/usr/lib/python2.7/xml/dom/minidom.py", line 1611, in 
+createTextNode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+20200316
+1.display fingprint sha256 of the box in system menu , for user to verify. functions.
+openssl -fingerprint -sha256 -in /storage/.kodi/apache/etc/ssl/certs/ss*pem | grep "Fingerprint="
+VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+SHA256 Fingerprint=
+1           2           3           4           5           6           7           8
+86:90:C8:2F:0B:CE:6A:33:8A:0C:72:98:2D:0C:C2:CC:D2:20:F3:08:DF:2C:FD:31:76:F1:A9:ED:9E:78:67:44
+32*8=256
+SHA1 Fingerprint=
+1           2           3           4           5          
+A4:7E:1C:40:91:A7:A7:25:62:9A:DE:A8:98:BF:D1:65:11:FF:A8:E4
+20*8=160SHA256 Fingerprint=
+1           2           3           4           5           6           7           8
+86:90:C8:2F:0B:CE:6A:33:8A:0C:72:98:2D:0C:C2:CC:D2:20:F3:08:DF:2C:FD:31:76:F1:A9:ED:9E:78:67:44
+32*8=256
+SHA1 Fingerprint=
+1           2           3           4           5          
+A4:7E:1C:40:91:A7:A7:25:62:9A:DE:A8:98:BF:D1:65:11:FF:A8:E4
+20*8=160
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2.generate qrcode of https://my.zerotier.com or https://[theboxname].funhome.tv for user easy access. the later in a menu . functions. there is builtin --> ShowPicture(picture)
+3.apply LE(Lets Encrypt) certificate for the first 50 every week. in acme. functions. 1
+4.check autoupdate work.
+5.update the wiki.com.funhome.tv
+6.look for a vps in US
+7.out case provider lookup , internet NAS have a good inner case , should look/make a out case.
+8.look for connect lines 5V 2.5A powerline, HDMI , ethernet line.
+9.seperate bluetoosh sound sink with kodi's pi HDMI. functions.
+10.server name in httpd.conf b.funhome.tv --- fixit.
+11. if the name conflict with already registerd , should prompt user and regenerate one . prompted .FINISHED.  maybe add a dash '-' to hostname and name is better . when have more test , to decide if it is needed.
+
+20200318
+1.pi4 on the way , merge with LEv9.8 for pi4.  in funhome.tv.4 of nele.funhome.tv FINISHED. need check.
+2.plymouth-lite , add a spinner with rounded bar to fill. 3 colored line in a rounded white bar connectting. maybe. looks better when update.
+3.first make a releasable system software, with 10 boxes , maybe offline to sell for a test. then online .
+4.element14 or taobao to lookup better price and quality connect line HDMI, ethernet, Powerline.
+
+20200321
+1.git learn , aimed to merge LibreELECv9.8 with funhome.tv-pre1.0. branching. FINISHED.
+2.make table of funhome.tv-parts. including tmall orangepi and raspberry pi 4b . compare price and ability. starting 1G RAM 4core, HDMI , ethernet ,wifi bt. HDD starting 500G,1T,2T.
+3.git clone very slow. hard to clone orangepi development sources. in night make a try. FINISHED.
+
+20200323
+1. git merge with upsteam master , thought rebase . FINISHED.
+2. setuped a git server on git@funrb.funhome.tv:/xtr/git/funhome.tv.git and git@funrb.funhome.tv:/xtr/git/funhome.settings.git.  FINISHED.
+
+20200324
+1. in qrcode generate, if in offline to internet mode , but online locally , should point to local address.
+2.look for easyer way to control funhometv box suffery the internet , for large steady display. message display and download large file.  What will be used in the future with funhometv box? 
+
+20200325
+1. need  add DISTRO_PKG_SETTINGS_ID in distributions/FunHomeTV/options . if use docker and chrome.
+haoyq@ubuntu:~/funhome.tv/haoyq/funhome.tv.4$ find packages config scripts  -exec grep -Hns DISTRO_PKG_SETTINGS_ID {} \;
+packages/addons/service/docker/package.mk:151:  sed -e "s/@DISTRO_PKG_SETTINGS_ID@/${DISTRO_PKG_SETTINGS_ID}/g" -i "${INSTALL}/default.py"
+packages/addons/browser/chrome/package.mk:104:  sed -e "s/@DISTRO_PKG_SETTINGS_ID@/${DISTRO_PKG_SETTINGS_ID}/g" -i "${INSTALL}/default.py"
+haoyq@ubuntu:~/funhome.tv/haoyq/funhome.tv.4$ find packages config scripts  -exec grep -Hns DISTRO_PKG_SETTINGS {} \;
+packages/addons/service/docker/package.mk:151:  sed -e "s/@DISTRO_PKG_SETTINGS_ID@/${DISTRO_PKG_SETTINGS_ID}/g" -i "${INSTALL}/default.py"
+packages/addons/browser/chrome/package.mk:104:  sed -e "s/@DISTRO_PKG_SETTINGS_ID@/${DISTRO_PKG_SETTINGS_ID}/g" -i "${INSTALL}/default.py"
+packages/virtual/mediacenter/package.mk:30:  if [ -n "$DISTRO_PKG_SETTINGS" ]; then
+packages/virtual/mediacenter/package.mk:31:    PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET $DISTRO_PKG_SETTINGS"
+2. install kdeconnect server . for users  to use kdeconnect on android to control the funhometv box.
+
+
+
+20200326
+1. in packages/devel/glib/package.mk
+remove post_makeinstall_target() {
+  rm -rf $INSTALL/usr/lib/installed-tests
+}
+2. in packages/mediacenter/kodi/scripts/kodi.sh
+remove debug
+3. in distributions/FunHomeTV/options  WIREGUARD_SUPPORT="yes"  GRAPHIC_DRIVERS=" add-- iris "
+
+20200327
+1.urllib2 is missing in funhome.tv.4 2to3 problem , FINISHED.
+
+20200328
+1.apache2 failed to start  . apachecertcp.sh failed in postreg.py.
+2.mariadb failed to start , missing mysql user. unknown why.
+3.php-fpm failed to start . maybe directory problem FINISHED.
+4.debug-shell not started .
+5.sshd.server removed the conditions.
+6.in funhome-settings oe.py , errorlog say -- no sys.setdefaultencoding. change to chinese, lost response.
+
+20200329
+1.postreg.py 2to3 in exception  , cause apachecertcp.sh fail , and then apache2 start failed.
+2.funhome-settings 2to3 pain. should modify as quickly as possible.
+3.add the qrcode for user less input .
+4.make virtual env of python on kodi , 
+5.first switch to release 1.0.0 , generate too much .img.gz , .ova , .tar.gz ....... FINISHED.
+6.make a startable flash , with cmdline.txt = 'root=/dev/sda1 rootfstype=ext4 rootwait' , with a bootable HDD of version 1.0.0
+7.after fix of add_user, still missing mysql user. FIXME. same as 20200328.2 FINISHED. apache2 shell problem. should be in post_install()
+8.hostname with b'. FINISHED.
+
+20200330
+1.ssh change passwd failed. Not Here. FINISHED.
+2.no matter what envirionment , dbg_log should log out.  added advancedsettings.xml in apachecertcp.sh.  moved to kodi.FINISHED.
+
+20200401
+1.mysql user
+2.postreg address
+3.mariadb and apache start
+4.in funhome-settings system::funhomenic ipv4-ipv6-name-n
+ame6: ## None-None-None-None in service::load_values 
+2020-03-31 22:06:25.806 T:772   DEBUG: ## FunHomeTV Addon ## services::initialize_zerotier ## en
+ter_function
+2020-03-31 22:06:25.806 T:772   DEBUG: ## FunHomeTV Addon ## system::updateSystemAddress ## ente
+r_function
+2020-03-31 22:06:25.806 T:772   DEBUG: ## FunHomeTV Addon ## system::funhomenic ## enter_functio
+n
+2020-03-31 22:06:25.806 T:772   DEBUG: ## FunHomeTV Addon ## system::funhomenic ipv4-ipv6-name-n
+ame6: ## None-None-None-None
+5.gnupg:init reinstalled in busybox  . resolved the missing gpgv problem . need check. FINISHED.
+6.use PyXBMCt to add qrcode if we have time. FINISHED.
+7.funhomenic need bytes we give str.  py2.7 no such problem.
+
+20200405 
+previous todo.txt in LibreELEC master branch git history . when switch to 9.2.2 , not copied here. should be all related to that branch with kodi 19.0 alpha , python 3 , linux 5.6.x .  here with kodi-Leia-18.6 , python 2 , linux 4.19.106 (x86 linux 5.1.6)
+
+20200406
+1.after switched to 9.2.2 and merged. Finished.
+2.move apache server name to /storage/.kodi/apache2  to reflect the server name change . and modify apachecertcp.sh and httpd.conf in php and nextcloud conffiles. FINISHED.
+3.fixed funhomenic and need-funhomenic . FINISHED.
+4.nextcloud first login problem . maybe First time initialize problem. first fix server name problem of upper 2. FINISHED
+5.transmission as a service should startup for download updates. FINISHED.
+6.autoupdate to autoreboot. at night 2-3 oclock
+7.nextcloud 18.0.3|1 16.0.5|8 all failed to setup , try to revert openssl1.0.1u for test. FINISHED. due to openssl config file miss.
+
+20200407
+1.to release the funhome.tv device in RPi4 and a HDD, SD , power line , HDMI line , HDD USB line, a case , and package in paper.
+	a. software ready.
+	b. hardware brought. RPi4 board, HDD,SD ,power line , HDMI line type c, HDD USB line .
+	c. case design  . fit in hardware , easy to heat off , solid for HDD , rounded. livable.
+	d. brife cheet . user manual. web site. support forum.
+	e. online taobao . or offline sale.
+	f. package . assembly with box , mail to custom . in garage , setup a workbench.
+
+
+20200408
+1.in busybox install directory , /usr/lib/funhometv/ , there is a  'rpi-flash-firmware' need modified to reflect the libreelec-funhometv change. FINISHED.
+2.after look at RPi4 boot from SD then HDD/SDD . look around to see whether it can be  boot from SD then use the boot: cmdline to boot from the MSD/USB HDD . FINISHED.
+ to release just look at the UUID of the image and then change to cmdline.txt of a bootable SD .
+
+rpi4 boot cmdline
+Kernel command line: coherent_pool=1M 8250.nr_uarts=0 cma=64M cma=256M video=HDMI
+-A-1:1920x1080M@60,margin_left=0,margin_right=0,margin_top=0,margin_bottom=0 smsc95xx.macaddr=DC
+:A6:32:95:BC:9F vc_mem.mem_base=0x3ec00000 vc_mem.mem_size=0x40000000  boot=UUID=0804-5609 disk=
+UUID=82173941-c003-46f3-9674-8f8d49004fae quiet root=/dev/ram0 rdinit=/init usbcore.autosuspend=
+-1
+
+3.rpi4 hostname changed 2 times. why ? need check.
+4.the progress of make a SD to boot indirectly from HDD. FINISHED . as upper 2.
+in short , a)make a bootable SD , and make a (should) bootable USB HDD.
+	   b)in bootable SD change boot and disk UUID of cmdline.txt  point to the bootable USB HDD.
+	   c)reboot to test . look blkid and df , and mount . aka /flash and /storage should point to USB HDD.
+
+inspired by
+https://jamesachambers.com/raspberry-pi-4-usb-boot-config-guide-for-ssd-flash-drives/
+
+because RPi4 cannot directly boot from USB HDD , we make a SD flash card to boot the MBR(should be) , and then use the cmdline.txt of the SD to boot indirectly from USB HDD , and make the system think it is boot from USB HDD directly , for easy of the system update , and no change the SD in future system update (if only the USB HDD's UUID don't change).
+
+current blkids.
+reid:~/.kodi/apache/etc/ssl # blkid
+/dev/mmcblk0: PTUUID="7831560a" PTTYPE="dos"
+/dev/mmcblk0p1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="7831560a-01"
+/dev/mmcblk0p2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="7831560a-02"
+/dev/loop0: TYPE="squashfs"
+
+after insert the HDD 500G to USB3 port
+reid:~/.kodi/apache/etc/ssl # blkid
+/dev/mmcblk0p1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="7831560a-01"
+/dev/mmcblk0p2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="7831560a-02"
+/dev/loop0: TYPE="squashfs"
+/dev/mmcblk0: PTUUID="7831560a" PTTYPE="dos"
+/dev/sda1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="7831560a-01"
+/dev/sda2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="7831560a-02"
+
+after change disk id
+reid:~/.kodi/apache/etc/ssl # blkid
+/dev/mmcblk0p1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="7831560a-01"
+/dev/mmcblk0p2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="7831560a-02"
+/dev/loop0: TYPE="squashfs"
+/dev/sda1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="faceface-01"
+/dev/sda2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="faceface-02"
+/dev/mmcblk0: PTUUID="7831560a" PTTYPE="dos"
+
+
+the cmdline of /flash on FUNHOMETV
+reid:/flash # more cmdline.txt
+boot=UUID=0804-5609 disk=UUID=82173941-c003-46f3-9674-8f8d49004fae quiet 
+reid:/flash # 
+
+we need to generate a new UUID of HDD , then modify the cmdline.txt on /flash , then the USB HDDshould be able to boot . aka. change cmdline.txt to :
+boot=UUID=aaaa-face disk=UUID=aaaaface-xxxx-xxxx-xxxx-xxxxxxxxxxxx quiet should be boot on the new HDD .
+
+after make a new disk(rebuild our project do the work)
+reid:/flash # blkid
+/dev/mmcblk0p1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="7831560a-01"
+/dev/mmcblk0p2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="7831560a-02"
+/dev/loop0: TYPE="squashfs"
+/dev/sda1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-0437" TYPE="vfat" PARTUUID="d9c040dd-01"
+/dev/sda2: LABEL="STORAGE" UUID="59497f4f-c2c1-45e8-8fdb-856623e92612" TYPE="ext4" PARTUUID="d9c040dd-02"
+/dev/mmcblk0: PTUUID="7831560a" PTTYPE="dos"
+
+we changed to 
+boot=UUID=0804-0437 disk=UUID=59497f4f-c2c1-45e8-8fdb-856623e92612 quiet
+
+
+after changed.
+FunHomeTV (release): 1.0.0 (RPi4.arm)
+fox:~ # blkid
+/dev/mmcblk0: PTUUID="7831560a" PTTYPE="dos"
+/dev/mmcblk0p1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-5609" TYPE="vfat" PARTUUID="7831560a-01"
+/dev/mmcblk0p2: LABEL="STORAGE" UUID="82173941-c003-46f3-9674-8f8d49004fae" TYPE="ext4" PARTUUID="7831560a-02"
+/dev/sda1: SEC_TYPE="msdos" LABEL_FATBOOT="FUNHOMETV" LABEL="FUNHOMETV" UUID="0804-0437" TYPE="vfat" PARTUUID="d9c040dd-01"
+/dev/sda2: LABEL="STORAGE" UUID="59497f4f-c2c1-45e8-8fdb-856623e92612" TYPE="ext4" PARTUUID="d9c040dd-02"
+/dev/loop0: TYPE="squashfs"
+fox:~ # 
+
+it booted from HDD.
+
+fox:~ # df -h
+Filesystem                Size      Used Available Use% Mounted on
+devtmpfs                714.9M    390.3M    324.6M  55% /dev
+/dev/sda1              1023.7M    408.9M    614.8M  40% /flash
+/dev/sda2               457.9G    428.9M    457.4G   0% /storage
+/dev/loop0              390.5M    390.5M         0 100% /
+tmpfs                   847.9M         0    847.9M   0% /dev/shm
+tmpfs                   847.9M     23.0M    824.9M   3% /run
+tmpfs                   847.9M         0    847.9M   0% /sys/fs/cgroup
+tmpfs                   847.9M      2.6M    845.3M   0% /var
+tmpfs                   847.9M         0    847.9M   0% /tmp
+/dev/mmcblk0p2           13.6G    414.8M     13.2G   3% /var/media/STORAGE
+/dev/mmcblk0p1         1023.7M    408.6M    615.1M  40% /var/media/FUNHOMETV
+
+
+eric@eric-hwmate:/fam/erichao/funhome.tv.4/packages/sysutils/busybox/scripts$ uuidgen
+0545b371-0760-453b-b527-7b77a880986d
+eric@eric-hwmate:/fam/erichao/funhome.tv.4/packages/sysutils/busybox/scripts$ cat /proc/sys/kernel/random/uuid
+363b2963-4568-4ea6-8490-b55cfd8dbe7b
+eric@eric-hwmate:/fam/erichao/funhome.tv.4/packages/sysutils/busybox/scripts$ cat /proc/sys/kernel/random/uuid
+c2f56558-6ca2-4c37-a5a7-44ffb0249469
+eric@eric-hwmate:/fam/erichao/funhome.tv.4/packages/sysutils/busybox/scripts$ uuidgen
+2ee5a8b4-57f3-49f2-a72b-253b34030b7d
+eric@eric-hwmate:/fam/erichao/funhome.tv.4/packages/sysutils/busybox/scripts$ 
+
+
+to  change the uuid of sdb1 
+tune2fs /dev/sdb1 -U random /dev/sdb1
+
+5.add fdisk . FINISHED.
+
+
+
+20200409
+1.software ready for release as soon as possible. release and update envirement setup and check.
+2.qrcode generate FINISHED
+3.check if it is possible to remove the SD in boot process. use the NVram in raspberry pi 4 document to make SD MBR be put in NVRAM directly for a test. 
+4. kodi 18.6 chinese default font should be arial , or chinese charactor is displayed in box. or change the notosanse font with CJK enabled one. REPLACED font . ADDED guisettings.xml in kodi for chinese. should look at how to incorprate the language package with the system , no need to download the language package when setup the kodi application. .......  FINISHED.
+5. in prompt , the forum should be changed to our forum ? where ? how much to spend ? chinese used znds.com/forum.php .FINISHED.
+6. add a user license for user to accept in wizard first page . then go on.  To make user known , no software will open sourced. like broadcom 's license. in english and chinese. FINISHED. we not release the build software , but release the released , which is open sourced.
+7.funhome.fbe should support RPi4.arm . FINISHED. need production.
+
+20200410
+1.should check how to make chinese language package install default with the system like the skin of estury.  FINISHED . font replaced.
+
+20200411
+1.when setup wifi on RPi4 , prompt Input IO Error , after twice , the kodi rebooted. maybe dbus problem.  should be firmware problem. wait firmware replace.
+
+2. the following prompt should be put somewhere. FINISHED.
+If the System enabled Zerotier Network , You can access it on mobile or PC when your zerotier one network connected. Otherwise , you can only access it with local network.
+如果系统启用了零层网络，您就可以在零层网络连接后的手机或电脑上访问这台机器。否则（没有启用零层网络），您只可以在本地网络访问这台机器。
+
+3.don't known where does zh_cn language puted . if only can chinese displayed.
+
+20200412
+1.user license displayed. add scriptlogviewer. FINISHED.
+2.font lookup .upgrade notosansCJKsc   FINISHED
+
+20200413
+1.add regular font license. SourceHanSan .  FINISHED.
+2.ready to finish qrcode and pyxbmct  FINISHED. except some language not display translated. FINISHED.
+3.user license adjust FINISHED.
+
+20200417
+1.chinese display fix . FINISHED.
+2.add chromium . in v1.0.1
+3.bluetooth for audio output/sink may need upsteam of kodi to modify . add in v2.0
+
+20200419
+1.fix rpi4 wireless pool performance. change firmware. when remote use it works.? TV interfer?  WiFi ap switched. not a problem. FINISHED.
+2.make updatecom.py online. in progress.
+3.git-flow study and flow . Release management. 
+4.try git-flow
+
+20200420
+1.in progress of funhome.fbe update . funhome.tv with packages , funhome-settings already setup branches of release and develop , and so on funhome.fbe. need to put updatecom.py and related sql to u16 on product. ... according to 20200421.1 , we make update work in develop work first , for example , can update to v1.0.1 , then update the product on u16.
+2.go on release candinate , and some user test and accept test.
+3.order usb hdd line , hdd , RPi4 , ethernet line , power suppli line , micro HDMI line .
+4.cases of box order or design.
+5.taobao register. or offline sell ?
+
+20200421
+1.for update release , we should first setup develop update , and check , if OK , then release update.
+2. in develop branch/env  for release 1.0.1 progress. 1.0.1.tar copied to release-d .need run createtorrent.sh.
+
+20200422
+1.in release branch , turn of debug in kodi settings. reduce the log.
+2.found 3 error in update to 1.0.1 of develop env. ADDED . FINISHED. need check.
+	a) pyxbmct not imported . make service.py not loaded as a module. then not appear in menu
+	b) 2020-04-22 20:57:08.840 T:2602533744   ERROR: Traceback (most recent call last):
+                                              File "/home/haoyq/funhome.tv/haoyq/funhome.tv.r/fu
+nhome.tv/build.FunHomeTV-RPi4.arm-1.0.1/funhome-settings-1.0.26/.install_pkg/usr/share/kodi/addo
+ns/service.funhometv.settings/oe.py", line 535, in ztStatusRefresh
+                                            KeyError: 'services'
+
+	c) watts.funhome.tv nextcloud say not in trusted domain.
+
+3.the 1.0.0 is build by change version 1.0.1 to 1.0.0 . for remember.
+
+20200423
+1.language zh_cn not correctly installed. need fix. addon problem. FINISHED. manifest should add.
+2.make pyxbmct work . FINISHED. 3 packages installed with manifest added in kodi - package.mk
+
+20200427
+1.fixed transmission connect tracker and funhome-settings autoupdate to work. FINISHED.
+2.make update work.  should FINISHED.
+
+20200428
+1.CUPSD today power lose . work at home one day.
+
+20200501
+1.in progress looking for VPS or hosting in US . it is possible to use free-dyna-dns as funhome.tv dns server , and we use ARM as server which is put in at less 3 living place with internet connection. In the same time use powerdns as dns server , and mariadb chained as salave to serve the DNS request.
+
+20200503
+1. operavps (in san jose of California, $6.99/month, 60RMB /month via paypal monthly auto)is setuped. detail in operavps.txt in shumafu nextcloud/notes. now as a ns2.funhome.tv ; and slave of funrb.funhome.tv in mariadb of pdns. FINISHED.
+2. setup a backup worker or balancer of nic.com.funhome.tv , when we have time. Now if one server of funhome.tv (u16/opvs) the PowerOutage , then the users can use the <boxname>.funhome.tv to work , but cannot setup the host of <boxname>.funhome.tv. FINISHED.
+
+3.for the release of funhometv device
+	a) test autoupdate and now function work completely.
+	b) setup a redmine on debdev.funhome.tv to record the release steps of funhometv device
+	c) device case choose, work one as soon as possiable.
+	d) brought hardware of rpi4 board, power line, micro SD , HDD ,micro HDMI, HDD SATA to USB, ethernet line RJ45, package  of paper with logo and beautiful.
+	e) register on taobao or contact for offline agent .
+
+20200507
+1.remove funhome-settings funhometv passwd hole. FINISHED
+2.copy SHUMAFU's APIKEY of godaddy.  FINISHED.
+3.make extravm complete same as u16 to work as a server : funhome.tv;release.com.funhome.tv;update.com.funhome.tv; FINISHED.  need check.
+4.make operavm a tracker.com.funhome.tv server.  FINISHED.
+4.adjust the kodi font to display , make version display and working display nicer.
+
+20200508
+1. find shumafu on godaddy's account infomation.
+
+20200510
+1.make extravm vps  server of  nic.com.funhome.tv and reg.com.funhome.tv . update.com.funhome.tv . same as 20200507.3  FINISHED. made nele extravm and opera as a mariadb galera cluster.-- changed to master and slave.
+ or extravm nic , reg , upd as a server .  
+ we removed the galera cluster. but use master on extravm and slave on opera to work. Reason, galera need at least 3 server to smoothly , one down or crash may make it offline in mariadb service , for us , more steable of DNS serving is import than register. If we got more clients , setup reg.com.funhome.tv with galera of 3/5/7 of servers.
+
+20200514
+1.galera cluster worked. FINISHED. changed to master and slave.
+
+20200518
+1.checkupdate problem of development version ? reg.com.funhome.tv in v1.0.0/v1.0.1 of marshall.funhome.tv vmware should not checked.
+2020-05-18 14:26:08.891 T:140569716193024   ERROR: ## FunHomeTV Addon ## update::check_updates_v
+2(http://reg.com.funhome.tv:5003/updates?i=856d8c6f59f5975c17f7e6335ea34ac8&d=FunHomeTV&pa=Gener
+ic.x86_64&v=1.0.1&f=vmwgfx&b=release) ## ERROR: (URLError(error(111, 'Connection refused'),))
+2020-05-18 14:26:08.891 T:140569716193024   ERROR: Traceback (most recent call last):
+                                              File "/fam/erichao/funhome.tv.4/build.FunHomeTV-Ge
+neric.x86_64-1.0.1/funhome-settings-1.0.26/.install_pkg/usr/share/kodi/addons/service.funhometv.
+settings/resources/lib/modules/updates.py", line 575, in check_updates_v2
+                                              File "/usr/lib/python2.7/urllib2.py", line 154, in
+ urlopen
+                                              File "/usr/lib/python2.7/urllib2.py", line 429, in
+ open
+                                              File "/usr/lib/python2.7/urllib2.py", line 447, in
+ _open
+                                              File "/usr/lib/python2.7/urllib2.py", line 407, in
+ _call_chain
+                                              File "/usr/lib/python2.7/urllib2.py", line 1228, i
+n http_open
+                                              File "/usr/lib/python2.7/urllib2.py", line 1198, i
+n do_open
+
+2.should not "None cannot quoted".
+2020-05-18 14:26:07.758 T:140570202343168   DEBUG: ## FunHomeTV Addon ## system::need_funhomenic
+ ## first needed exit_function
+2020-05-18 14:26:07.758 T:140570202343168   DEBUG: ## FunHomeTV Addon ## system::funhomenic ## n
+eed funhomenic
+2020-05-18 14:26:07.768 T:140570202343168   DEBUG: ## FunHomeTV Addon ## system::funhomenic ## E
+RROR: (TypeError('None object cannot be quoted',))
+2020-05-18 14:26:07.768 T:140570202343168   DEBUG: ## FunHomeTV Addon ## system::updateSystemAdd
+ress ## exit_function
+
+3.only when zerotier is in Node Online and network status OK , should funhomenic to change from localaddress to zerotier one address.
+
+4.get list / table of microservice in development and production . UPDATE_URL , REG_URL , NIC_URL , DOWNLOAD_URL , torrent_URL.
+5.define a near by bluetooth mobile phone, if it is near by , not funhomenic in zerotier, but local network.
+
+20200520
+1.when kodi playing , it displayed update available , is it a feather?
+2.when kodi playing , background file transfer may make kodi climse. We should make ionice for php?
+3.switch develop to product on and test . check for 20200518.1..2 and 20200518.4 .
+4.make opera a slave of extravm.
+5.check if update report status when downloading with user action.
+6.ready for real release .. make cases 
+7.today CUPSD restored u16 and funrb. make u16 slave of opera.
+
+20200522
+1.in legal or license file , add the inevitable force part.
+Failure is inevitable, at least when you run a large deployment.
+
+20200523 
+1.opera outage. extented 20 dayes. server content is lost.
+
+20200525
+1.make DNS server default TTL to at least 1D  to make the server less press.
+2.setup cdist with maxscale of mariadb on extravm and operavs and u16 , in control with hwm. changed cdist  to ansible.
+
+
+20200604
+1.make a galera cluster with
+  extravm.funhome.tv (vps in US , dalas. ubuntu , mariadb 10.4.13 )
+  operavs.funhome.tv (vps in US , new york. ubuntu , mariadb 10.4.13)
+  nele.funhome.tv (vm in home imac , ubuntu,mariadb 10.4.13 in home unicom )
+  u16
+  funrb
+  *xdf.funhome.tv (arm in rasp3B with mariadb 10.4.13 in unicom)
+  *lsgb.funhome.tv (arm in rasp3B+ with mariadb 10.4.13 in unicom)
+
+  u15 slave of u16. ( so that ,even galera is out of service , at least u15 can make dns work , can later make more dns slave to make dns more reliable or available )
+
+
+ in order to make funhome.tv high availbility as carrier grade (at least 99.9%)
+	=maxscale need a simple arch. so there should be a master and several slave mariadb. can make failover, auto_rejoin , switch_over of database. 
+	dns only need to read the mysql backend. so slave works when as backend of powerdns.
+        nic.com.funhome.tv , and update.com.funhome.tv is application of user name a host or interact . need to be high availbility . can be made point to at least 3 host in haproxy backend ( the haproxy itself can be with client ,aka haproxy in box of funhome.tv we ship . map such as nic1.com.funhome.tv -> u16 , nic2.com.funhome.tv -> extravm , nic3.com.funhome.tv -> operavs.
+	nic.com.funhome.tv with flask/nginx and mariadb need to write. should be master . in galera.
+        update.com.funhome.tv with flask/nginx and mariadb need to write. should be master . in galera .
+	galera cluster all node are master.
+	galera cluster need at least 3 node to work , if 2 node down , it is down. out of service. not lost data.
+	
+	releases.com.funhome.tv is a web service to make box download update image. not need high availbility . can be updated when server ready. we autoupdate. user not care. 
+	questions to answer:
+	a.maxscale on which host? no need.
+	b.which host is master or in galera?
+		extravm g2 , operavs g3( digitalocean maybe new apply ) and nele g1, funrb g4, u16 g5, d530 g6,vaiobook g7(xdf). form a galera
+			with extravm and operavs ( /digitalocean ) and u16  as nic.com.funhome.tv and update.com.funhome.tv
+		 shumafu.com (u15) act as slave of galera.   
+	c.who on the internet?
+		extravm , operavs , u16 , shumafu.com(u15)
+	d.who in zerotier?
+		extravm , operavs , nele , funrb , ( xdf , lsgb )  u16 ,d530 , vaiobook.
+	e.who is dns server?
+		extravm , operavs , u16 , shumafu.com(u15) 
+	f.who is funhome.tv?
+		extravm and operavs , same wiki.com.funhome.tv
+	
+	goals archived
+		a. nic.com.funhome.tv and update.com.funhome.tv function only if one of extravm and operavs and u16 online.  
+		b. even all galera out of service , nic.com.funhome.tv etc out of service , but dns should work as slave . u15(shumafu) should make dns work.
+
+
+20200605
+1. add ionice in package of util-linux . turn off busybox's ionice . to make 'ionice -c 3 -u daemon' in startup of php-fpm.  the system is unstable after 39 dayes on RPi4 .
+
+20200606
+1. in use of haproxy , maybe more high availbility. as 20200604 . setup haproxy in funhome.tv box. 
+2. create ansible playbook , for disaster recovery of the servers  and deploy faster with lost servers.
+	a.galera.
+	b.web site of nic.com.funhome.tv and update.com.funhome.tv , and wiki.com.funhome.tv
+	c.setup haproxy in funhometv box
+	d.test. and accept
+
+20200609
+1.funhome.tv-ansible-playbook contains following roles. 
+	galera should be in zerotier;
+	u16 and u15 on internet and innernet ; then u16 in zerotier, internet, innernet.
+	-galera
+	  hosts:nele g1, extravm g2 , operavs g3 , funrb g4 , u16 g5, d530 g6 , u18 g7(put to xdf)
+	-mariadb-slave
+	  hosts:u15 , including galera . u15 is a slave of galera , on the internet. only replicate database pdns 
+	-powerdns ( authoritive app , admin & gmysql--mariadb - backend )
+	  hosts: nele , extravm ns1, operavs ns2 , funrb , u16 ns3 , u15 ns4 ,d530 , u18 ( real on the internet : extraex, operaex , u16ex , u15ex -- export interface ) ; need access mariadb , pdns read only , admin need write .
+	-flaskex -- flask service ['nic.com.funhome.tv','update.com.funhome.tv']  front is nginx
+	  hosts: real on the internet ( extraex , operaex , u16ex ) ; need access mariadb write.
+	-flaskin -- flask service reg.com.funhome.tv 	front is nginx
+	  hosts: host with interface not directly to internet but in zerotier of my own network. should connect  galera. in factory production progress.   need access mariadb write.
+	-wikicom ( web site of funhome.tv  - a nodejs app with bootstrap css like apple.com/iphone ) 
+	  hosts:real on internet ( extraex , operaex , u16ex ) ; no need mariadb access.
+	-haproxy 
+	  hosts: in front of nic.com flask server -- httpserver -- flaskex & in front of galera -- tcp galera 
+
+20200621
+1.ready to retire opera with 7.76$/month and 512M ram , 10G disk. unlimit network but slow at NY.
+New server maxkvm and letbox . at lower that 5$/month and 1G RAM ,15G or 20G disk ,  at LA. lesser network band. 
+*notes of maxkvm and letbox at own use nextcloud notes directroy of maxkvm.txt and letbox.txt.
+2.double check funrb and u16 mariadb backuped ok, turn u16 to slave backup of funrb as funhome-arch.pdf or funhometv-arch --- pencil diagram .
+3.update galera , setup HA( 4 flask servers access galera and in funhometv box setup to access 4 flask servers) , and flask on extravm,maxkvm,letbox,u16.
+
+
+20200626
+1.in license of funhometv , add inresistentable force of network outage. we just work at network ok. In network split , we cannot work. It is problem of the internet of the country's carrier.
+2.take u16 out of the zerotier. except u16 and u15 , all other hosts of com.funhome.tv in zerotier. updated funhometv-arch.pdf in documents/funhome-admin with pencil on devpc in windows. 
+3. for a note . Hosts is in 'hosts' file of the /etc/hosts , like d530.funhome.tv , just a map of host to ip , but not in DNS of funhome.tv. If d530 is in DNS , should be 'd530.com.funhome.tv' alike . Because the we use hosts in /etc/hosts , when DNS is not available , in case of DNS /internet / powerdns / mariadb / galera outage.
+4.upgrade mariadb from 10.3.22 to 10.3.23 FINISHED.
+
+20200627
+1.setup mariadb on letbox,maxkvm,extravm FINISHED
+2.make upper slave of coresponding host's master.  FINISHED.unchecked.
+  according to funhometv-arch.pdf in nextcloud/Documents/funhometv.admin/ 
+  nele(master) --> extravm (slave)
+  funrb(master ) --> maxkvm (slave)
+  xdf(master) --> letbox(slave)
+3.flask and nginx on upper 3 servers. outside .
+4.to setup 5 servers of galera , first "ansible-playbook -b mariadb.yml"
+	second "ansible-playbook -b galera.yml" FINISHED
+5.setup haproxy on 3 servers outside  with port 3307 point to 5 servers galera. with 
+	"ansible-playbook -b haproxy" FINISHED.
+6.about add user debian-sys-maint , once at a galera monitor connection , it is added ok in 5 servers. FINISHED.
+ create user 'debian-sys-maint'@'localhost' identified by 'GaleraRoot';
+ grant all on *.* to 'debian-sys-maint'@'localhost';
+7.make a zabbix monitor server on nele , to monitor galera , haproxy , flask
+
+20200628
+1.in role galera add log-bin and log_slave_update = ON , to make 5 server same server id and 2 settings.  no need. FINISHED. unchecked
+2.in hand/ansible command  setup 20200627 .2 , master -- slave pair . FINISHED.unchecked. 
+
+20200629
+1.setup zabbix for monitor . on debdev.funhome.tv . doc from https://www.zabbix.com/documentation/4.4/manual/installation/install_from_packages/debian_ubuntu
+	Welcome to the MariaDB monitor.  Commands end with ; or \g.
+	Your MariaDB connection id is 35
+	Server version: 10.4.13-MariaDB-1:10.4.13+maria~buster mariadb.org binary distribution
+
+	Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+	Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+	MariaDB [(none)]> create database zabbix character set utf8 collate utf8_bin;
+	Query OK, 1 row affected (0.065 sec)
+
+	MariaDB [(none)]> create user 'zabbix'@'localhost' identified by 'zbpassw0rd';
+	Query OK, 0 rows affected (0.062 sec)
+
+	MariaDB [(none)]> grant all privileges on zabbix.* to 'zabbix'@'localhost';
+	Query OK, 0 rows affected (0.004 sec)
+   
+	database imported. and Configure database for Zabbix server/proxy . FINISHED configdatabase.
+	next section is 'start zabbix server process '
+consume too much time , halt now , when have time setup zabbix.
+
+working on 20200628...
+
+20200630
+1.we want make extravm/letbox/maxkvm replicate from galera with haproxy on itself. so that HA mariadb. FINISHED.unchecked.
+  so just need add a replication user , and first import data, then check master status and start slave on each server . hand make a ansible playbook for haproxy with replicate in it .
+
+
+
+Create a Replication User on the First Cluster's Master
+Before the second cluster's slave can begin replicating from the first cluster's master, you need to create a user account on the master that the slave can use to connect, and you need to grant the user account the REPLICATION SLAVE privilege. For example:
+
+CREATE USER 'repl'@'c2dbserver1' IDENTIFIED BY 'password';
+GRANT REPLICATION SLAVE ON *.*  TO 'repl'@'c2dbserver1';
+
+20200701
+1. in order to make user's data safe, in spite of our 3 US servers are intruded or stolen ( We DOES NOT totally control the servers. ) , We need make the funhometv box 's certificate a let's encrypt or others or selfsigned (but user accepted) Or thought ACME --  valid SSL / TLS certificate. so maybe need a script to apply from User's box . The private key never leave the box. So that the nextcloud client can refuse to connect the fake server ( in DNS poison or DNS lost control ) , protected by TLS. Today shumafu.com 's SSL certificate is outdated. the nextcloud client on android refuse to connect to the outdated SHUMAFU server. 
+2. make back on slave of galera with git commit of the mariadb data in sql language . As a dizastor recovery method .
+
+20200703
+1.zerossl , is an alternate of Let's Encrypt. Not having the limiting of 50 certificates per single domain per week now known. We should choose a client like DANE-CLIENT(name forget - acmebot) to get certificate on funhometv box. https://github.com/plinss/acmebot  is a candinate. but seems a little complicated. Get the list from https://letsencrypt.org/docs/client-options/ . sewer is another canidnate. acme-dns-tiny is another. https://github.com/mk-fg/acme-cert-tool is another .
+
+20200704
+1. setup replicate of galera to mariadb slave in ansible . use role of ansible-mysql , the old ansible-mysql is renamed to ansible-mysql-jr . the master is galera in localhostzt:3307 , the slave is mariadb at outside servers in US of maxkvm,letbox,extravm. as in the funhometv-arch.pdf . FINISHED.unchecked.
+	a.install mariadb 10.4.13 latest from mariadb repo.
+	b.import back/extra-pdns.with-proc.sql
+	c.(A1)galera should be ready for use , in front of a & b.
+	d.add replication user to galera with privileges.
+	e.get master info
+	f.change master to  -- on slave 
+	g.start slave.
+	h.(A2) setup database user of pdns . in front of a & b.
+	i.(--A3--) setup replicate user . in front of a & b  OR in setup process. -- same as d
+
+  h :
+   create user 'pdns'@'%' identified by 'PDNSP0ss';
+   grant all on pdns.* to 'pdns'@'%';
+2.galera master change for replicate of galera to mariadb slave in ansible. FINISHED. unchecked. when used. First setup galera with playbook of galera.yml. then setup replicate with role of ansible-mysql.
+
+20200705
+1. mysql user is managed only by the table . but system  root user can construct it . 
+
+mysql user root have no password at first when as a system root. but can be changed for localhost. others is cannot work.
+
+if only mysql can insert a record to user table , a user is ok.
+
+on maxkvm and letbox , root@'%' is create with sql with system root login with no password. and granted root@'%' all privi.
+according to : https://stackoverflow.com/questions/5555328/error-1396-hy000-operation-create-user-failed-for-jacklocalhost
+it is needed to flush privileges; and it is a bug of mysql.
+
+MariaDB [mysql]> flush privileges;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [mysql]> create user root@'localhost' identified by 'RootPowerUser';
+Query OK, 0 rows affected (0.001 sec)
+
+
+on extravm start with 
+#mysql -uroot 
+MariaDB [mysql]> create user 'root'@'localhost' identified by  'RootPowerUser';
+Query OK, 0 rows affected (0.002 sec)
+
+MariaDB [mysql]> grant all on *.* to 'root'@'localhost';
+Query OK, 0 rows affected (0.001 sec)
+
+
+false:
+MariaDB [mysql]> create user root@'%' identified by  'RootPowerUser';
+ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'%'
+
+
+20200706
+1. in front of outside-slave , create replication user on galera 
+
+CREATE USER 'repl'@'%' IDENTIFIED BY 'replFunHomeTVPassw0rd';
+GRANT REPLICATION SLAVE ON *.*  TO 'repl'@'%';
+
+record: start
+haoyq@letbox:~$ mysql -uroot -p -h localhostzt -P 3307
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 23
+Server version: 10.4.13-MariaDB-1:10.4.13+maria~bionic-log mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> CREATE USER 'repl'@'%' IDENTIFIED BY 'replFunHomeTVPassw0rd';
+Query OK, 0 rows affected (0.271 sec)
+
+MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.*  TO 'repl'@'%';
+Query OK, 0 rows affected (0.244 sec)
+
+MariaDB [(none)]> flush privileges;
+Query OK, 0 rows affected (0.237 sec)
+
+MariaDB [(none)]> \q
+Bye
+haoyq@letbox:~$ 
+record: end
+
+
+add reload and process grant .
+record: start 
+haoyq@letbox:~$ mysql -uroot -p -h localhostzt -P 3307
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 26
+Server version: 10.4.13-MariaDB-1:10.4.13+maria~bionic-log mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> GRANT reload,process on *.* to 'repl'@'%';
+ERROR 2013 (HY000): Lost connection to MySQL server during query
+MariaDB [(none)]> GRANT reload,process on *.* to 'repl'@'%';
+ERROR 2006 (HY000): MySQL server has gone away
+No connection. Trying to reconnect...
+Connection id:    27
+Current database: *** NONE ***
+
+Query OK, 0 rows affected (0.922 sec)
+
+MariaDB [(none)]> flush privileges;
+Query OK, 0 rows affected (0.269 sec)
+
+MariaDB [(none)]> 
+--- need the following line too ...  ---
+grant super,replication client on *.* to 'repl'@'%';
+record: end
+
+then on maxkvm and letbox , change mariadb user root's password with the following . or after use mysql_install_db and restart mariadb .
+record: start
+mysql -uroot -p
+MariaDB [mysql]> create user 'root'@'localhost' identified by  'RootPowerUser';
+ERROR 1396 (HY000): Operation CREATE USER failed for 'root'@'localhost'
+MariaDB [mysql]> flush privileges;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [mysql]> create user 'root'@'localhost' identified by  'RootPowerUser';
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [mysql]> grant all on *.* to 'root'@'localhost'
+    -> ;
+Query OK, 0 rows affected (0.012 sec)
+
+MariaDB [mysql]> \q
+Bye
+root@maxkvm:~# systemctl restart mariadb
+record: end
+
+mariabackup  --backup --no-defaults  -u repl -H localhostzt -P 3307 -preplFunHomeTVPassw0rd --target-dir=/var/backups/tmp-mysql1 --protocol=tcp --no-lock
+
+3 mariabackup run , 2 diffrent result. on extravm , it backup databases pdns and powerdnsadmin; on letbox and maxkvm , 2 databases missed.
+
+
+with --no-lock , databases not all backuped; without --no-lock , mariabackup will not end. 
+
+20200707
+
+1.we use mysql -uroot -p pdns < extra.pdns*sql to import pdns . work on. left mariabackup it here. mariabackup too. FINISHED. added first remove, then prepare. in role/tasks import data. in outside-slave.yml
+2.setup powerdns authoritive server with gmysql backend with ansible. FINISHED. in powerdns-auth.yml
+3.setup pdns.admin with ansible. NO NEED. just on nele is Enough. FINISHED.
+4.setup flask reg.com & nic.com & update.com with ansible.
+
+5.in setup powerdns extravm works , but maxkvm and letbox 's powerdns cannot access pdns database of mariadb.
+
+a error don't known why extravm works , but not letbox and maxkvm.
+pdns with same password can login on extravm , but no letbox and maxkvm.
+
+
+record:start
+mysql -uroot 
+
+MariaDB [mysql]> SELECT host,user,password,Grant_priv,Super_priv FROM mysql.user;
++-----------+-------------+-------------------------------------------+------------+------------+
+| Host      | User        | Password                                  | Grant_priv | Super_priv |
++-----------+-------------+-------------------------------------------+------------+------------+
+| localhost | mariadb.sys |                                           | N          | N          |
+| localhost | root        | *1F973FCF1EE4581600286EDBF45C1390DD71B7B7 | N          | Y          |
+| localhost | mysql       | invalid                                   | Y          | Y          |
+| letbox    | pdns        | *103A05DB7CBEDB32CB6716A19DE6CCA67540B3E1 | N          | N          |
+| %         | repl        | *4096259BD9116549CBFFECE0916BD93E1AB5CD0A | N          | Y          |
+| 127.0.0.1 | pdns        | *103A05DB7CBEDB32CB6716A19DE6CCA67540B3E1 | N          | N          |
+| ::1       | pdns        | *103A05DB7CBEDB32CB6716A19DE6CCA67540B3E1 | N          | N          |
+| localhost | pdns        | *103A05DB7CBEDB32CB6716A19DE6CCA67540B3E1 | N          | N          |
++-----------+-------------+-------------------------------------------+------------+------------+
+8 rows in set (0.001 sec)
+
+MariaDB [mysql]> set password for 'mysql'@'localhost' = password('RootPowerUser');
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [mysql]> \q
+Bye
+root@letbox:/etc/cloud# mysql -umysql
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 22194
+Server version: 10.4.13-MariaDB-1:10.4.13+maria~bionic mariadb.org binary distribution
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> select user();
++-----------------+
+| user()          |
++-----------------+
+| mysql@localhost |
++-----------------+
+1 row in set (0.000 sec)
+
+MariaDB [(none)]> grant all on *.* to 'root'@'localhost' with grant option;
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [(none)]> grant all on pdns.* to 'pdns'@'%' identified by 'PDNSP0ss';
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [(none)]> show grants;
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Grants for mysql@localhost                                                                                                                                                 |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| GRANT ALL PRIVILEGES ON *.* TO `mysql`@`localhost` IDENTIFIED VIA mysql_native_password USING '*1F973FCF1EE4581600286EDBF45C1390DD71B7B7' OR unix_socket WITH GRANT OPTION |
++----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.000 sec)
+
+MariaDB [(none)]> \q
+Bye
+root@letbox:/etc/cloud# ls -l
+total 16
+-rw-r--r-- 1 root root 3614 Jul  8 05:05 cloud.cfg
+drwxr-xr-x 2 root root 4096 Jun 21 08:24 cloud.cfg.d
+-rw-r--r-- 1 root root 3517 Jan 15 09:35 cloud.cfg.dpkg-dist
+drwxr-xr-x 2 root root 4096 Jul  8 05:03 templates
+root@letbox:/etc/cloud# systemctl status pdns
+● pdns.service - PowerDNS Authoritative Server
+   Loaded: loaded (/lib/systemd/system/pdns.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2020-07-08 05:50:47 MDT; 2min 40s ago
+     Docs: man:pdns_server(1)
+           man:pdns_control(1)
+           https://doc.powerdns.com
+ Main PID: 30587 (pdns_server)
+    Tasks: 10 (limit: 1109)
+   CGroup: /system.slice/pdns.service
+           └─30587 /usr/sbin/pdns_server --guardian=no --daemon=no --disable-syslog --log-timest
+
+Jul 08 05:50:47 letbox pdns_server[30587]: TCPv6 server bound to [::]:53
+Jul 08 05:50:47 letbox pdns_server[30587]: PowerDNS Authoritative Server 4.1.13 (C) 2001-2018 Po
+Jul 08 05:50:47 letbox pdns_server[30587]: Using 64-bits mode. Built using gcc 7.3.0 on Aug  8 2
+Jul 08 05:50:47 letbox pdns_server[30587]: PowerDNS comes with ABSOLUTELY NO WARRANTY. This is f
+Jul 08 05:50:47 letbox pdns_server[30587]: Listening for HTTP requests on 0.0.0.0:8081
+Jul 08 05:50:47 letbox pdns_server[30587]: Polled security status of version 4.1.13 at startup, 
+Jul 08 05:50:47 letbox pdns_server[30587]: Creating backend connection for TCP
+Jul 08 05:50:47 letbox systemd[1]: Started PowerDNS Authoritative Server.
+Jul 08 05:50:47 letbox pdns_server[30587]: About to create 3 backend threads for UDP
+Jul 08 05:50:47 letbox pdns_server[30587]: Done launching threads, ready to distribute questions
+root@letbox:/etc/cloud# netstat -an | more
+
+record:end
+
+20200708
+1. in progress of setting up powerdns-admin on nele. add adminuser of mariadb. FINISHED.
+mysql -uroot
+
+MariaDB [(none)]> grant all on powerdnsadmin.* to 'pdnsadminuser'@'localhostzt' identified by 'PDNSPassw0rd';
+Query OK, 0 rows affected (0.358 sec)
+
+MariaDB [(none)]> flush privileges;
+Query OK, 0 rows affected (0.035 sec)
+
+2.add pdns user of mariadb  . FINISHED.
+
+haoyq@nele:~/db-dump-backup$ mysqldump -updns -R -p pdns > pdns.sql
+Enter password: 
+mysqldump: pdns has insufficent privileges to SHOW CREATE PROCEDURE `spCreateMachine`!
+
+3. make pdns can dump routine . FINISHED.
+GRANT SELECT ON mysql.proc to 'pdns'
+mysqldump -updns -R -p pdns > pdns.sql 
+
+4. make a crontab to dump pdns , and a git server setup, everyday git commit to the backup that  for the powerdns-authoritive backup. FINISHED.
+5.fix the powerdnsadmin database in outside 3 mariadb servers by dump and import . can use the repl user of galera . FINISHED.
+
+20200710
+1.change mariabackup to mysqldump , for correctness.
+2.remove ingore error 1032 1046. in 50-server.conf
+3.replication with outside - slave setuped , but with diffrent records of table records.
+4.add a funhometv-id ? like apple-id , the device is belongs to a id , no matter backup or restore.
+
+
+20200711
+1.dump galera with 
+ mysqldump  -uroot -p pdns -hlocalhostzt -P 3307 --routines > pdns.with-proc.dump.sql
+ and reimport it . all ok.
+2.on nele.funhome.tv setup a crontab , use mysqldump to dump all the databases and git commit to funrb.funhome.tv to backup it.  FINISHED.
+
+20200717
+1.to make a 64bit kernel , to resolve php 32-bit limit of file with 2G.
+
+ as kernel document from "https://www.kernel.org/doc/html/latest/admin-guide/README.html"
+"make ${PLATFORM}_defconfig"
+                   Create a ./.config file by using the default
+                   symbol values from
+                   arch/$ARCH/configs/${PLATFORM}_defconfig.
+                   Use "make help" to get a list of all available
+                   platforms of your architecture.
+
+/opt/linux/linux/.config is the 64bit kernel config based on linnx.arm.conf.
+ a) copy linux.arm.conf to /opt/linux/linux/.config
+ b) make oldconfig
+ c) make menuconfig -- save .config
+ 
+
+
+20200730
+1. in downloads of eric-hwnote , there is broadcom's graphice driver open sourced tar archive. for study to make funhome.tv box a aarch64 64bit , in order to make php work in 64bit to break 2G limit of php.
+ where build userland of raspberrypi open source driver , there is something wrong or not exist correct one program , to work with the 64 bit platform. see build64log.txt for detail. in here . directory.
+the document of broadcom is at https://docs.broadcom.com/docs/12358546
+and
+another https://liliputing.com/2014/02/raspberry-pi-gets-true-open-source-graphics-drivers.html
+and 
+https://docs.broadcom.com/doc/12358545
+and
+https://static.docs.arm.com/dai0490/a/DAI0490A_ilp32_for_aarch64_whitepaper.pdf#:~:text=Linux%20on%20AArch64%20uses%20LP64%20as%20its%20standard,%E2%80%A2%20Stack%20pushing%20and%20popping%20by%2064-bit%20register.
+
+VideoCore® IV 3D  Architecture Reference Guide
+
+https://docs.broadcom.com/doc/12358545
+
+20200804
+1.after several dayes of cheng application for university. Mariadb galera cluster of funhome.tv download for 2 times . Reasons maybe incorrect time to update each host of cluster. in order known each host down, We should setup a mail server of funhome.tv with 3 server outside of the internet.
+2.look up ways of use 32bit driver of videocore of broadcom on github of archlinux on arm 64bit.
+
+20200807
+1.to setup mail server of funhome.tv .now with 1 server mail.funhome.tv as extravm.funhome.tv
+	a.install postfix , as smarthost 
+	b.setup mx  @ -- mail.funhome.tv in powerdnsadmin . which point mail exchange to mail.funhome.tv.
+	c.on nele / any need send mail host , install postfix as satelite.
+	d.as postfix setup , setup postmap on mail.funhome.tv . as e.hao@funhome.tv --> haoyq user on extravm.funhome.tv , which is mail.funhome.tv indeed.
+	e.use whiterice7@qq.com not 1047444093@qq.com
+	f.modify galera-notify.j2 in ansible-galera-cluster / templte/ etc/mysql/galera-notify.py.j2
+	d.not use SSL and user_auth. variable set to false.
+
+20200809
+1.in ansible and shell , make apt update and apt upgrade on galera and outside servers ( including u15,u16) to crontab in daily update and upgrade , and reboot one by one as needed. Limit: galera works with at least 3 servers , so reboot 3 or 4 or 5 servers of galera would break galera in NON-PRIMARY state. But reboot 1 by 1, means at least 4 servers working when network normal , even another server stop or crash or network break incidently. 
+
+2. make mail.funhome.tv on letbox and maxkvm as extravm . Also postmap on the 2 box. So that even 1 or 2 server of 3 outside server down, we can still work on funhome.tv email  notification with 1 server outside.
+   mx pointed to mail.funhome.tv . @ mx mail.funhome.tv . mail.funhome.tv should point to 3 A of outside server.
+  -- for recording
+   based as : https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-postfix-on-ubuntu-18-04
+
+   https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-postfix-as-a-send-only-smtp-server-on-ubuntu-18-04
+
+   or 
+
+	a) install postfix and mailutils
+	b) setup as internet site and smarthost  , in case use: sudo dpkg-reconfigure postfix
+	c) sudo postconf -e 'home_mailbox= Maildir/'
+	d) sudo postconf -e 'virtual_alias_maps= hash:/etc/postfix/virtual'
+	e) vi /etc/postfix/virtual, 
+		e.hao@funhome.tv  haoyq
+		postmaster@funhome.tv haoyq 
+	f) sudo postmap /etc/postfix/virtual
+	g) systemctl restart postfix
+
+------
+start record.
+
+
+
+
+Step 2 — Tweak the Postfix Configuration
+
+Next, we can adjust some settings that the package did not prompt us for.
+
+To begin, we can set the mailbox. We will use the Maildir format, which separates messages into individual files that are then moved between directories based on user action. The other option is the mbox format (which we won’t cover here) which stores all messages within a single file.
+
+We will set the home_mailbox variable to Maildir/ which will create a directory structure under that name within the user’s home directory. The postconf command can be used to query or set configuration settings. Configure home_mailbox by typing:
+
+    sudo postconf -e 'home_mailbox= Maildir/'
+
+Next, we can set the location of the virtual_alias_maps table. This table maps arbitrary email accounts to Linux system accounts. We will create this table at /etc/postfix/virtual. Again, we can use the postconf command:
+
+    sudo postconf -e 'virtual_alias_maps= hash:/etc/postfix/virtual'
+
+Step 3 — Map Mail Addresses to Linux Accounts
+
+Next, we can set up the virtual maps file. Open the file in your text editor:
+
+    sudo nano /etc/postfix/virtual
+
+The virtual alias map table uses a very simple format. On the left, you can list any addresses that you wish to accept email for. Afterwards, separated by whitespace, enter the Linux user you’d like that mail delivered to.
+
+For example, if you would like to accept email at contact@example.com and admin@example.com and would like to have those emails delivered to the sammy Linux user, you could set up your file like this:
+/etc/postfix/virtual
+
+contact@example.com sammy
+admin@example.com sammy
+
+After you’ve mapped all of the addresses to the appropriate server accounts, save and close the file.
+
+We can apply the mapping by typing:
+
+    sudo postmap /etc/postfix/virtual
+
+Restart the Postfix process to be sure that all of our changes have been applied:
+
+    sudo systemctl restart postfix
+
+Step 5 — Setting up the Environment to Match the Mail Location
+
+Before we install a client, we should make sure our MAIL environmental variable is set correctly. The client will inspect this variable to figure out where to look for user’s mail.
+
+In order for the variable to be set regardless of how you access your account (through ssh, su, su -, sudo, etc.) we need to set the variable in a few different locations. We’ll add it to /etc/bash.bashrc and a file within /etc/profile.d to make sure each user has this configured.
+
+To add the variable to these files, type:
+
+    echo 'export MAIL=~/Maildir' | sudo tee -a /etc/bash.bashrc | sudo tee -a /etc/profile.d/mail.sh
+
+To read the variable into your current session, you can source the /etc/profile.d/mail.sh file:
+
+    source /etc/profile.d/mail.sh
+
+end record.
+------
+
+in checking postfix service on letbox or maxkvm , maybe there is less of servers in services. need to make a mail test on galera host to send mail.
+
+
+20200809
+1.64bit funhome.tv on rpi4 using too much time . today stuck in gentoo linux boot loader install on pc vmware . should first make enviroment of product work. unless 64 can work in 7 dayes.
+2.make product network env work , aka install reg/nic/update.com micro service on outside servers. Partly nic should work now 20200823
+
+20200815
+1.read git tutorial . master mainly for merge pull of upsteam.
+2.php large file support work with 2G file transferd OK FINISHED , but have some strange error reported. upgrade php to 64bit maybe  is better than the large file support. at least ubuntu's php 7.2 on u15 with 64bit is reliable.
+3.resolve stable problem of kodi or linux kernel on rpi4 or video driver of rpi4  .
+
+20200823
+1.in order to make ssh-add ask pass only once on notebook every boot,
+ #### begin of ssh-agent
+ssh-add -l &>/dev/null
+if [ "$?" == 2 ]; then
+  test -r ~/.ssh-agent && \
+    eval "$(<~/.ssh-agent)" >/dev/null
+
+  ssh-add -l &>/dev/null
+  if [ "$?" == 2 ]; then
+    (umask 066; ssh-agent > ~/.ssh-agent)
+    eval "$(<~/.ssh-agent)" >/dev/null
+    ssh-add
+  fi
+fi
+ #### end of ssh-agent
+ FINISHED.
+2.setup auto update of ast-funhome.tv.certs 
+3.galera work with 5 servers for 8 days . FINISHED.
+4.change nic.py 's mysql connection to localhostzt:3307 , work with haproxy for writer. with ansible . FINISHED.
+5.to debug gunicorn worker cannot boot : run gunicorn with --preload can see the error log. FINISHED.
+
+20200825
+1.make funhome.tv production and development environment ready. develop on product but different host.
+2.check kodi crashlog
+4. make a crontab to dump pdns , and a git server setup, everyday git commit to the backup that  for the powerdns-authoritive backup.
+
