@@ -60,6 +60,8 @@ pre_configure_target() {
 }
 
 post_makeinstall_target() {
+# we haoyq are in domain "funhome.tv" not only "local" , but also "the internet"
+  sed -e "s,^.*domain-name=.*$,domain-name=funhome.tv,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
 # disable wide-area
   sed -e "s,^.*enable-wide-area=.*$,enable-wide-area=no,g" -i $INSTALL/etc/avahi/avahi-daemon.conf
 # publish-hinfo

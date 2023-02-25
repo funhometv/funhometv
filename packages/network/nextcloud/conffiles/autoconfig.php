@@ -10,5 +10,7 @@ $AUTOCONFIG = array(
   "adminpass"     => "funhome.tv",
   "directory"     => "/storage/nextclouddata",
   'memcache.local' => '\OC\Memcache\APCu',
+  'check_data_directory_permissions' => false,
+
 
 );

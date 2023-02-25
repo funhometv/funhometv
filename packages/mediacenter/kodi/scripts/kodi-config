@@ -23,9 +23,9 @@ if [ ! -f $KODI_ROOT/userdata/sources.xml ]; then
 fi
 
 #setup profile to make no lock pin silence
-if [ ! -f $KODI_ROOT/usrrdata/profile.xml ]; then
-  if [ -f /usr/share/kodi/config/profile.xml ]; then
-    cp /usr/share/kodi/config/profile.xml $KODI_ROOT/userdata
+if [ ! -f $KODI_ROOT/usrrdata/profiles.xml ]; then
+  if [ -f /usr/share/kodi/config/profiles.xml ]; then
+    cp /usr/share/kodi/config/profiles.xml $KODI_ROOT/userdata
   fi
 fi
 

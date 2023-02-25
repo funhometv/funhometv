@@ -27,7 +27,7 @@ if os.path.exists(flagreg):
         fcont=flh.read()
     jc2=json.loads(fcont)
     print("read file ok")
-    print(jc2["id"], jc2["StatusCode"])
+#    print(jc2["id"], jc2["StatusCode"])
     if(jc2["StatusCode"]=='200' and (not (len(jc2["id"]) == 0))):
         raise(Exception("already registed"))
 
@@ -41,10 +41,10 @@ else:
 dgst = subprocess.Popen([cmdgetmid], shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 readout1 = dgst.stdout.readline()
 dgstpart = readout1.split(" ")[-1]
-print (readout1)
+#print (readout1)
 
-print ("dgstpart", dgstpart)
-print ("len dgst",len(dgstpart))
+#print ("dgstpart", dgstpart)
+#print ("len dgst",len(dgstpart))
 
 def url_quote(var):
     return urllib2.quote(var, safe="")
@@ -72,10 +72,18 @@ urldatastr = "machineid=%s&a=%s&name=%s&aaaa=%s" %(
         urllib2.quote('waitsetup.funhome.tv'),
         urllib2.quote('0::1')
         )
+fakemid="(hidden)"
+urldatastr_hidden = "machineid=%s&a=%s&name=%s&aaaa=%s" %( 
+        urllib2.quote(fakemid) ,
+        urllib2.quote('0.0.0.0'),
+        urllib2.quote('waitsetup.funhome.tv'),
+        urllib2.quote('0::1')
+        )
 #request = urllib2.Request(regurl,regdata)
-print (regurl,urldatastr)
+#print (regurl,urldatastr)
+print (regurl,urldatastr_hidden)
 response = urllib2.urlopen(regurl,urldatastr)
-print ("urldatastr:", urldatastr)
+print ("urldatastr:", urldatastr_hidden)
 
 content = response.read()
 print (content)
@@ -90,7 +98,8 @@ if jc['StatusCode'] == '200':
         fcont=flh.read()
     jc2=json.loads(fcont)
     print("read file ok")
-    print(jc2["id"], jc2["StatusCode"])
+    #    print(jc2["id"], jc2["StatusCode"])
+    print(fakemid,jc2["StatusCode"]) 
 else:
     print ("something wrong")
 

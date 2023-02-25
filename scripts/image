@@ -126,6 +126,9 @@ for directory in etc dev proc run sys tmp usr var flash storage mnt; do
   mkdir -p ${INSTALL}/${directory}
 done
 
+# we haoyq , in order to use virtual machine share folders , we create a mount point for it.
+mkdir -p ${INSTALL}/mnt/hgfs
+
 # Build image contents
 MTADDONBUILD=no start_multithread_build image || die "Parallel build failure - see log for details. Time of failure: $(date)"
 

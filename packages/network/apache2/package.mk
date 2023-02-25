@@ -284,6 +284,10 @@ if [ ! -s /storage/.kodi/apache/etc/ssl/certs/ssl-cert-snakeoil.pem ]; then
 	mkdir -p /storage/nextclouddata
 	chown daemon:daemon /storage/nextclouddata
 	
+	#for immich
+	mkdir -p /storage/immichdata
+	chown daemon:daemon /storage/immichdata
+	
 	# to enable funhome-settings debug . FIXME remember to remove it when production.
 	touch /storage/.cache/debug.libreelec
 	

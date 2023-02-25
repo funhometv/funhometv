@@ -406,8 +406,8 @@ post_makeinstall_target() {
 
   mkdir -p $INSTALL/usr/share/kodi/system/settings
 
-  #in order to make first boot dialog of pin lock silence , we put a profile.xml for a test. we haoyq @2023-02-14
-  cp -Pv $PKG_DIR/config/profile.xml $INSTALL/usr/share/kodi/config
+  #in order to make first boot dialog of pin lock silence , we put a profiles.xml for a test. we haoyq @2023-02-14
+  cp -Pv $PKG_DIR/config/profiles.xml $INSTALL/usr/share/kodi/config
 
   $PKG_DIR/scripts/xml_merge.py $PKG_DIR/config/guisettings.xml \
                                 $PROJECT_DIR/$PROJECT/kodi/guisettings.xml \
@@ -472,7 +472,8 @@ post_makeinstall_target() {
   # Compile kodi Python site-packages to .pyc bytecode, and remove .py source code
   #python_compile ${INSTALL}/usr/lib/${PKG_PYTHON_VERSION}/site-packages/kodi
 
-  debug_strip ${INSTALL}/usr/lib/kodi/kodi.bin
+  #FIXME : remember to uncomment the following line , to turn off debug
+  #debug_strip ${INSTALL}/usr/lib/kodi/kodi.bin
 
 
 }
