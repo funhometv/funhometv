@@ -1,4 +1,6 @@
 # FunHomeTV
+Take cloud to own place right now.
+
 FunHomeTV is a end user product to make mobile backup photo and video thought network to our own storage secure and easy. Our data belong to us , and stored with us . Enjoy our photo and video locally . Make home more fun. 
 
 ## How to use
