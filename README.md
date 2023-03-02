@@ -1,9 +1,10 @@
 # FunHomeTV
-FunHomeTV is a end user product to make mobile backup photo and video thought network to our own storage secure and easy. Our data belong to us , and stored with us . Enjoy our photo and video locally . Make home more fun. 
+Take cloud to own place right now.
+FunHomeTV is a end user product to make mobile backup photo and video thought network to our own storage secure and easy. Our data belong to us , and stored with us .Size only limited by our disk size .  Enjoy our photo and video locally . Make home more fun. 
 
 ## How to use
 
-**As a virtual machine on our computer:**
+* As a virtual machine on our computer:
 - Download the FunHomeTV ova file in Releases. Then download VMWare Virtual Player (version 15 is recommend on windows , not only small in size , but also stable than newer version. -- pure personnel opinion )or other virtual machine software for your computer's OS . Use it to Open the ova file . Follow the wizard on screen until end.
 - Download Nextcloud mobile application in our mobile's application market. 
 - Scan the QRCode on the screen to link with our Nextcloud mobile client . Then select the directory of photo or video library to upload.
@@ -11,7 +12,7 @@ FunHomeTV is a end user product to make mobile backup photo and video thought ne
 - Other user can be setup thought Nextcloud web interface.
 - Note: As free software , and involve DNS and certificate and network , we use server at our own , there are sometime need be patient. Especially when first time connect to Nextcloud Hub . It maybe need initilized first time . Even we need use  browser to connect first time. Laterlly , it works .
 
-**As a phyical machine , it's need to order . Connect mobile PC & TV .**
+* As a phyical machine , it's need to order . Connect mobile PC & TV .
 
 ## Requirement
 * As a virtual machine need the virtual machine software , such as VMWare Workstation Player for Windows or Linux , and Fusion for macOS  , and VirtualBox on Windows or Linux or macOS. 

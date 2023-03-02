@@ -75,7 +75,15 @@ echo " -----------------------------------------------------make_target---------
 pwd
 cd ..
 
-    ./configure --only-additions --disable-kmods
+	    #--with-yasm=$(get_build_dir yasm)  \
+	    #--with-makeself=$(get_build_dir makeself) \
+
+    ./configure --only-additions --disable-kmods  \
+	    --with-gcc=${TARGET_PREFIX}gcc \
+	    --with-g++=${TARGET_PREFIX}g++ \
+	    --with-linux=$(get_build_dir linux) \
+	    --with-openssl-dir=$(get_build_dir openssl) \
+	    --build-headless
     . ./env.sh
 	echo "------------------after source env.sh -------------------make_target-------------- virtualbox-guest-addition"
     umask 0022
@@ -94,6 +102,14 @@ cd ..
     sed -i "1949s,$, $PAM_INCLUDE $SYSROOT_PREFIX/usr/include," Config.kmk
 	#at RUNTIME_LIB add the SYSROOT_PREFIX/usr/lib
     sed -i "2184s,$, $SYSROOT_PREFIX/usr/lib," Config.kmk
+    # in order to use our own lib , and avoid cross link problem"
+    sed -i "s,/usr/X11R6/lib64,$SYSROOT_PREFIX/usr/lib,g" Config.kmk
+    sed -i "s,/usr/X11R6/lib,$SYSROOT_PREFIX/usr/lib,g" Config.kmk
+    sed -i "s,/usr/X11R6/lib32,$SYSROOT_PREFIX/usr/lib,g" Config.kmk
+    # in order to link libSM 
+    sed -i "s,pthread m rt dl,pthread m rt dl SM ICE,g" Config.kmk
+    sed -i "s,TEMPLATE_VBOXGUESTR3EXE_LIBS     = pthread rt m dl, TEMPLATE_VBOXGUESTR3EXE_LIBS     = pthread rt m dl SM ICE,g" Config.kmk
+
 
    # CFLAGS+=" -I$(get_build_dir pam)/.$TARGET_NAME -lpam " 
     kmk \
@@ -107,7 +123,7 @@ cd ..
         SDK_VBOX_LIBPNG_INCS="$PAM_INCLUDE"                                    \
         SDK_VBOX_LIBXML2_INCS="$PAM_INCLUDE"                                   \
         SDK_VBOX_LZF_LIBS="lzf pam"                                    \
-        SDK_VBOX_LZF_INCS="/usr/include/liblzf $PAM_INCLUDE "                    \
+        SDK_VBOX_LZF_INCS=" $PAM_INCLUDE "                    \
         SDK_VBOX_OPENSSL_INCS="$PAM_INCLUDE"                                   \
         SDK_VBOX_OPENSSL_LIBS="ssl crypto"                         \
         SDK_VBOX_ZLIB_INCS="$PAM_INCLUDE"                                      \
@@ -121,6 +137,7 @@ cd -
 makeinstall_target() {
     # The directory layout created below attempts to mimic the one of
     # the commercially supported version to minimize confusion
+    cd ..
     mkdir -p $INSTALL/bin
     mkdir -p $INSTALL/sbin
     mkdir -p $INSTALL/lib/security
@@ -130,13 +147,14 @@ makeinstall_target() {
         obj/bin/additions/VBoxService            
     
     #for     %{SOURCE5}
-    cp -Pv scripts/mount.vboxsf $INSTALL/sbin
+    cp -Pv $PKG_DIR/scripts/mount.vboxsf $INSTALL/sbin
 
     
     install -m 0755 -t $INSTALL/bin    \
         obj/bin/additions/VBoxDRMClient          \
         obj/bin/additions/VBoxClient             \
-        obj/bin/additions/VBoxControl
+        obj/bin/additions/VBoxControl	\
+	obj/bin/additions/mount.vboxsf
     
     # Guest libraries
     install -m 0755 -t $INSTALL/lib/security \
@@ -154,6 +172,8 @@ makeinstall_target() {
     #install -p -m 0644 -D %{SOURCE1} $INSTALL%{_unitdir}/vboxservice.service
     #install -p -m 0644 -D %{SOURCE3} $INSTALL%{_udevrulesdir}/60-vboxguest.rules
     #install -p -m 0644 -D %{SOURCE4} $INSTALL%{_unitdir}/vboxclient.service
+    
+    cd -
 
 }
 
@@ -168,4 +188,8 @@ makeinstall_target() {
 post_install() {
   enable_service vboxservice.service
   enable_service vboxclient.service
+	# we added the static lib for virtualbox_guest_additions, others should not use it .
+	if [ -e $SYSROOT_PREFIX/usr/lib/libstdc++.a ]; then
+		rm  $SYSROOT_PREFIX/usr/lib/libstdc++.a
+	fi
 }

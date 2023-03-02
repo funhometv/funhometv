@@ -3,14 +3,17 @@ nextcloud_fix_perm(){
 #echo "in nextcloud_fix_perm"
 	# make nextcloud not to check permissions and stop to report 770 needed.
 	#'check_data_directory_permissions' => false,
-	if [ -e  /storage/nextcloud/config/autoconfig.php -a `grep check_data_directory_permissions /storage/nextcloud/config/autoconfig.php| wc -l` == "0" ]; then
-		sed -i "s|);|\n 'check_data_directory_permissions' => false,\n);\n|" /storage/nextcloud/config/autoconfig.php
-#echo "after 1 sed"
-	fi
-	if [ ! -e /storage/nextcloud/config/autoconfig.php  ]; then 
-		if [  -e /storage/nextcloud/config/config.php  -a `grep check_data_directory_permissions /storage/nextcloud/config/config.php| wc -l` == "0"  ]; then
-			sed -i "s|);|\n 'check_data_directory_permissions' => false,\n);\n|" /storage/nextcloud/config/config.php
-#echo "after 2 sed"
+	if [ -e  /storage/nextcloud/config/autoconfig.php ]; then
+		if [ `grep check_data_directory_permissions /storage/nextcloud/config/autoconfig.php| wc -l` == "0" ]; then
+			sed -i "s|);|\n 'check_data_directory_permissions' => false,\n);\n|" /storage/nextcloud/config/autoconfig.php
+			#echo "after 1 sed"
+		fi
+	else
+		if [  -e /storage/nextcloud/config/config.php  ]; then
+			if [  `grep check_data_directory_permissions /storage/nextcloud/config/config.php| wc -l` == "0"  ]; then
+				sed -i "s|);|\n 'check_data_directory_permissions' => false,\n);\n|" /storage/nextcloud/config/config.php
+				#echo "after 2 sed"
+			fi
 		fi
 	fi
 #echo "end next_fix_perm"
@@ -23,10 +26,11 @@ we_mount_and_fix_perm(){
 	#if [ ! $RETURN -eq 0 ]; then
 	#	exit $RETURN
 	#fi
-	mkdir -p /mnt/hgfs/`vmware-hgfsclient`/nextcloud
-	mkdir -p /mnt/hgfs/`vmware-hgfsclient`/immich
-	mount -o bind /mnt/hgfs/`vmware-hgfsclient`/nextcloud  /storage/nextclouddata
-	mount -o bind /mnt/hgfs/`vmware-hgfsclient`/immich /storage/immichdata
+	SHARED=`vmware-hgfsclient`
+	mkdir -p "/mnt/hgfs/${SHARED}/nextcloud"
+	mkdir -p "/mnt/hgfs/${SHARED}/immich"
+	mount -o bind "/mnt/hgfs/${SHARED}/nextcloud"  /storage/nextclouddata
+	mount -o bind "/mnt/hgfs/${SHARED}/immich" /storage/immichdata
 
 }
 notify_mounted(){
@@ -58,7 +62,7 @@ if [ `mount|grep nextclouddata| wc -l` == "1" ]; then
 fi
 #echo "start check folder user add"
 if [ `vmware-hgfsclient| wc -l` == "0" ]; then 
-	echo "user not add shared folder"
+	#echo "user not add shared folder"
 	exit 1
 fi
 # user not add a share folder for vm
@@ -67,14 +71,14 @@ if [ `mount|grep mnt| wc -l` == "0" ]; then
 # vmtoolsd not mount the user shared folder
 #echo "vmtoolsd not mount the user shared folder"
         we_mount_and_fix_perm 
-	notify_mounted
+		notify_mounted
         exit 0
 elif [ `mount|grep mnt| wc -l` == "1" ]; then
 # vmtoolsd mounted , should not for daemon , we change it to belong daemon.
 #echo "vmtoolsd mounted , but we need to unmount first"
         umount /mnt/hgfs
         we_mount_and_fix_perm
-	notify_mounted
+		notify_mounted
         exit 0
 fi
 #echo "end"

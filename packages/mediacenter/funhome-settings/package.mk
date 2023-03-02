@@ -5,10 +5,10 @@
 
 PKG_NAME="funhome-settings"
 PKG_VERSION="2023.2.28"
-PKG_SHA256="e416218b0ff6d1883afb1c2788519325b15e4885c092fee5008cbc0a05c7fea4"
+PKG_SHA256="05948716bcf18aa39ba63d3d9fe8dc5db59199aae0bc123d9406b31b855be500"
 PKG_LICENSE="BSL"
 PKG_SITE="https://funhome.tv"
-PKG_URL="https://funhome.tv:8443/packages/funhome-settings-$PKG_VERSION.tar.gz"
+PKG_URL="https://github.com/erickhao/funhome-settings/archive/refs/tags/v2023.2.28.tar.gz"
 #PKG_DEPENDS_TARGET="toolchain Python3 connman pygobject dbus-python faker transmissionrpc zerotier nextcloud apache2 mariadb php gnupg transmission resource.language.zh_cn qrcode pyxbmct"
 PKG_DEPENDS_TARGET="toolchain Python3 connman dbussy faker transmissionrpc zerotier nextcloud apache2 mariadb php gnupg transmission resource.language.zh_cn qrcode pyxbmct dnspython"
 #PKG_DEPENDS_TARGET="toolchain Python3 connman pygobject pydbus faker transmissionrpc zerotier nextcloud apache2 mariadb php gnupg transmission resource.language.zh_cn qrcode pyxbmct"

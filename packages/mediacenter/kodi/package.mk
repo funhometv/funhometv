@@ -227,6 +227,7 @@ configure_package() {
   # kodi included TexturePacker , with this line , compile ok but error when use it . when cross compiling , it is not used.
 	  #                       add ENABLE_INTERNAL_TEXTUREPACKER=ON for a test
   #                       INTERNAL_TEXTUREPACKER_EXECUTABLE
+  # we haoyq removed DBUS to OFF  @ 2023/2/27 for poweroff reboot etc. just not segment fault.
 
   PKG_CMAKE_OPTS_TARGET="-DNATIVEPREFIX=$TOOLCHAIN \
                          -DWITH_TEXTUREPACKER=$TOOLCHAIN/bin/TexturePacker \
@@ -240,7 +241,7 @@ configure_package() {
                          -DFFMPEG_INCLUDE_DIRS=$SYSROOT_PREFIX/usr \
                          -DENABLE_INTERNAL_CROSSGUID=OFF \
                          -DENABLE_UDEV=ON \
-                         -DENABLE_DBUS=ON \
+                         -DENABLE_DBUS=OFF \
                          -DENABLE_XSLT=ON \
                          -DENABLE_CCACHE=ON \
                          -DENABLE_LIRCCLIENT=ON \
