@@ -1,16 +1,18 @@
 # FunHomeTV
-Take cloud to own place right now.
-FunHomeTV is a end user product to make mobile backup photo and video thought network to our own storage secure and easy. Our data belong to us , and stored with us .Size only limited by our disk size .  Enjoy our photo and video locally . Make home more fun. 
+[中文版](README-SC.md)
+Take our own cloud to home right now.
+FunHomeTV make mobile backup or transfer photo and video at home thought network to our own storage secure and easy. Technically , it has a nextcloud server for our mobile nextcloud client . Our data belong to us , and stored with us . Size only limited by our disk size .  Enjoy our photo and video locally . Make home more fun. 
 
 ## How to use
 
 * As a virtual machine on our computer:
-- Download the FunHomeTV ova file in Releases. Then download VMWare Virtual Player (version 15 is recommend on windows , not only small in size , but also stable than newer version. -- pure personnel opinion )or other virtual machine software for your computer's OS . Use it to Open the ova file . Follow the wizard on screen until end.
-- Download Nextcloud mobile application in our mobile's application market. 
-- Scan the QRCode on the screen to link with our Nextcloud mobile client . Then select the directory of photo or video library to upload.
-- Use  browser to open the virtual machine's nextcloud address , setup up user name and password. Remember to change the default password of user "nc" .
+- Download the FunHomeTV "FunHomeTV-Generic.x86_64-1.0.2.ova.torrent" in Releases, need to use browser download the torrent file first , then use a bittorrent client to download the ova file . Bittorrent client we can use [qbittorrent](https://www.qbittorrent.org) or [transmission](https://transmissionbt.com/) or other you selected to use . Then [download VMWare Workstation Player](https://www.vmware.com/go/downloadplayer) (version 15 is recommend , not only small in size , but also stable than newer version. -- pure personnel opinion )  for your computer's OS . Use it to Open the ova file . Follow the wizard on screen until end.
+- Download Nextcloud mobile application in our mobile's application market. Maybe some android mobile need to download from [f-droid.org](https://f-droid.org).
+- Scan the QRCode on the screen to link with our Nextcloud mobile client ,get user name / password and server address. 
+- First time use the Nextcloud server side , we should use browser to open the server address . We can copy the server address from nextcloud mobile client's address bar after scan the QRCode , while not to type the server address in browser.  Use  browser to open the virtual machine's nextcloud address , setup up user name and password. Remember to change the default password of user "nc" .
+- Then in nextcloud mobile client , select the directory of photo or video library to upload.
 - Other user can be setup thought Nextcloud web interface.
-- Note: As free software , and involve DNS and certificate and network , we use server at our own , there are sometime need be patient. Especially when first time connect to Nextcloud Hub . It maybe need initilized first time . Even we need use  browser to connect first time. Laterlly , it works .
+- Note: As free software , and involve DNS & certificate & database and network , we use server at our own , there are sometime need be patient. Especially when first time connect to Nextcloud Hub . It maybe need initilized first time . Even we need use  browser to connect first time. Laterlly , it works .
 
 * As a phyical machine , it's need to order . Connect mobile PC & TV .
 
@@ -20,8 +22,14 @@ FunHomeTV is a end user product to make mobile backup photo and video thought ne
 * The virtual machine should be on same WLAN/LAN with our mobile , so that our mobile can connect to the FunHomeTV service in virtual machine , except we setup other network settings. (Bridged is better, like another host on our LAN)
 * Upper host machine OS should be 64-bit .
 
+## For developer
+* Please consult Libreelec.tv website to learn about the development process.
+* After clone the branch of funhometv , note that , default branch of funhometv is "product" , not "master"/"main".
+* We should download nextcloud hub in compressed package before build ,  put it in packages/network/nextcloud/conffiles. The nextcloud compressed package is not uncompressed until the server first started .
+
+
 ## Where FunHomeTV fork ?
-* FunHomeTV is fork from LibreELEC , with web server / php / mariadb / nextcloud / acme.sh etc installed. 
+* FunHomeTV is fork from LibreELEC , with web server apache2 ( 2.4.x ) / php (7.3.x) / mariadb (10.3.x) / nextcloud (25.0.x) / acme.sh (3.0.x) etc installed. 
 
 
 **Issues & Support**
